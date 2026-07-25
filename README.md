@@ -159,6 +159,29 @@ sunucuda hallolur.
      sadece dosya adıyla göster — OpenCart yolu yazma.
    - STL, STEP, PDF gibi indirilebilir dosyaları `downloads/` içine koy.
 
+#### Bir görsel hangi sekmede görünür?
+
+Bir görselin hangi sekmede çıkacağını **dosya adı değil, onu yazdığın yer**
+belirler. `![](resim.jpg)` satırını hangi `#` başlığının altına yazarsan,
+görsel o sekmede görünür:
+
+```markdown
+# Sorun
+
+![](stok-braket.jpg)      ← "Sorun" sekmesinde çıkar
+
+# Geliştirme
+
+![](gelistirme.jpg)       ← "Geliştirme" sekmesinde çıkar
+![](final.jpg)            ← o da "Geliştirme" sekmesinde (aynı sekmede iki görsel)
+```
+
+- Dosya adları serbesttir; yeter ki metindeki `![](ad)` ile `images/`
+  içindeki dosya adı birebir aynı olsun.
+- Bir sekmeye hiç görsel koymayabilir ya da birkaç tane koyabilirsin.
+- Baştaki `image:` alanı ayrıdır: o, ürünün **kapak (ana) görselidir** ve
+  sekmelerden bağımsızdır. O da `images/` içinde bir dosya olmalıdır.
+
 ### 3. Windows'a özel dikkat edilecekler
 
 - **Dosya uzantısı tuzağı:** Windows dosya uzantılarını gizler. Not
