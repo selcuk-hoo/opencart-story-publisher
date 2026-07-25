@@ -1,17 +1,18 @@
 # Story Publisher
 
-Markdown-based product publisher for OpenCart 4.
+OpenCart 4 için Markdown tabanlı ürün yayınlama aracı.
 
-Every product is a story. You write the story in one Markdown file, drop in
-your images and downloadable files, and run the importer. OpenCart is updated
-for you. You never edit HTML, PHP, SQL, or OpenCart templates.
+Her ürün bir hikâyedir. Hikâyeyi tek bir Markdown dosyasına yazar, görselleri
+ve indirilebilir dosyaları klasöre koyar ve içe aktarıcıyı çalıştırırsın.
+OpenCart senin için güncellenir. HTML, PHP, SQL ya da OpenCart şablonlarını
+asla düzenlemezsin.
 
-See `docs/SPECIFICATION.md` for the full Version 0.1 specification and
-`talimatlar.md` for the design philosophy.
+Tam Sürüm 0.1 belirtimi için `docs/SPECIFICATION.md`, tasarım felsefesi için
+`talimatlar.md` dosyalarına bakabilirsin.
 
-## How a product looks
+## Bir ürün nasıl görünür
 
-Each product is a single folder:
+Her ürün tek bir klasördür:
 
 ```
 products/
@@ -26,9 +27,9 @@ products/
             servo-yatagi.step
 ```
 
-`product.md` has metadata at the top and the story below. Each top-level
-`#` heading becomes a tab on the product page, so you can write the story
-in the reader's own language:
+`product.md` dosyasının en üstünde meta veriler, altında hikâye bulunur. Her
+üst düzey `#` başlığı ürün sayfasında ayrı bir **sekme** olur; böylece
+hikâyeyi okuyucunun dilinde yazabilirsin:
 
 ```markdown
 ---
@@ -49,47 +50,48 @@ status: enabled
 ![](stok-braket.jpg)
 ```
 
-- `name`, `model`, and `price` are required. `model` also identifies the
-  product: importing the same model again **updates** it instead of creating
-  a duplicate.
-- `category` must already exist in OpenCart (Version 0.1 does not create
-  categories).
-- `image` is the main product image and must be a file in `images/`.
-- `status` is `enabled` or `disabled` (default: `enabled`).
-- Reference images with plain names, e.g. `![](prototype.jpg)`. The importer
-  copies them into OpenCart and fixes the paths. Never write OpenCart paths.
+- `name`, `model` ve `price` zorunludur. `model` aynı zamanda ürünü
+  tanımlar: aynı modeli tekrar içe aktarmak yeni bir kopya oluşturmaz,
+  mevcut ürünü **günceller**.
+- `category` OpenCart'ta önceden var olmalıdır (Sürüm 0.1 kategori
+  oluşturmaz).
+- `image` ana ürün görselidir ve `images/` içinde bir dosya olmalıdır.
+- `status` değeri `enabled` ya da `disabled`'dır (varsayılan: `enabled`).
+- Görselleri sade adlarıyla göster, örneğin `![](prototip.jpg)`. İçe
+  aktarıcı bunları OpenCart'a kopyalar ve yolları düzeltir. Asla OpenCart
+  yolu yazma.
 
-## Setup
+## Kurulum
 
-1. Copy the configuration file and fill it in:
+1. Yapılandırma dosyasını kopyala ve doldur:
 
    ```
    cp config.example.php config.php
    ```
 
-   Put your OpenCart database details and folder paths in `config.php`.
-   (`config.php` is ignored by git because it holds your password.)
+   OpenCart veritabanı bilgilerini ve klasör yollarını `config.php` içine
+   yaz. (`config.php` şifreni içerdiği için git tarafından yok sayılır.)
 
-2. Requirements: PHP 8 or newer with the `mysqli` extension, and an
-   OpenCart 4 installation.
+2. Gereksinimler: `mysqli` eklentisine sahip PHP 8 veya üzeri ve bir
+   OpenCart 4 kurulumu.
 
-## Importing
+## İçe aktarma
 
-Import every product:
+Tüm ürünleri içe aktar:
 
 ```
 php import.php
 ```
 
-Import a single product folder:
+Tek bir ürün klasörünü içe aktar:
 
 ```
 php import.php servo-yatagi
 ```
 
-The importer prints one line per product and a short summary. If a product
-fails, it says which product, what went wrong, and how to fix it, and then
-continues with the rest.
+İçe aktarıcı her ürün için bir satır ve kısa bir özet yazdırır. Bir ürün
+başarısız olursa; hangi ürünün, neden başarısız olduğunu ve nasıl
+düzeltileceğini söyler, sonra kalanlarla devam eder.
 
 ## Windows'ta ürün ekleme (içerik editörü için)
 
@@ -203,30 +205,31 @@ aktarmayı kendin de çalıştırabilirsin. Linux'tan tek farkı `config.php`:
 
 - **Çalıştırma:** Linux'takiyle aynı — `php import.php`.
 
-## Project layout
+## Proje düzeni
 
 ```
-import.php            Command line entry point
-config.example.php    Copy to config.php and fill in
-src/                  The pipeline
-    Scanner.php           Finds product folders
-    ProductParser.php     Reads product.md and validates it
-    MarkdownRenderer.php  Turns the story into HTML
-    Publisher.php         Runs the import, copies files, reports
-    OpenCartApi.php       The only class that touches OpenCart's database
-    Product.php           Plain data holder
-    ImportException.php   Human-readable import errors
-lib/Parsedown.php     Markdown library (single file, MIT)
-products/             Your product folders
-tests/run.php         Tests for the non-database parts
-docs/                 Specification, architecture, roadmap, decisions
+import.php            Komut satırı giriş noktası
+config.example.php    config.php olarak kopyala ve doldur
+src/                  İşlem hattı (pipeline)
+    Scanner.php           Ürün klasörlerini bulur
+    ProductParser.php     product.md dosyasını okur ve doğrular
+    MarkdownRenderer.php  Hikâyeyi HTML'e (ve sekmelere) çevirir
+    Publisher.php         İçe aktarmayı yürütür, dosyaları kopyalar, rapor verir
+    OpenCartApi.php       OpenCart veritabanına dokunan tek sınıf
+    Product.php           Basit veri taşıyıcı
+    ImportException.php   İnsan tarafından okunabilir içe aktarma hataları
+lib/Parsedown.php     Markdown kütüphanesi (tek dosya, MIT)
+products/             Senin ürün klasörlerin
+tests/run.php         Veritabanı dışı kısımların testleri
+docs/                 Belirtim, mimari, yol haritası, kararlar
 ```
 
-## Running the tests
+## Testleri çalıştırma
 
 ```
 php tests/run.php
 ```
 
-These cover the scanner, the parser, and the Markdown renderer. The database
-side needs a real OpenCart installation and is not part of this test run.
+Bu testler tarayıcıyı (scanner), ayrıştırıcıyı (parser) ve Markdown
+dönüştürücüyü kapsar. Veritabanı tarafı gerçek bir OpenCart kurulumu
+gerektirir ve bu test çalışmasına dahil değildir.
