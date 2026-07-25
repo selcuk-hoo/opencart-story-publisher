@@ -138,3 +138,26 @@ Rejected Alternatives
   (the author should only write plain Markdown)
 - A lightbox / click-to-zoom
   (extra JavaScript; can be added later if needed)
+
+### Decision 007
+
+Report all problems at once, and separate warnings from errors.
+
+Reason
+
+The parser used to stop at the first bad field, so the author fixed one
+thing, re-ran, and found the next. Warnings were also printed straight to
+the console, mixed in with the results.
+
+How
+
+ProductParser collects every metadata problem and reports them together,
+pointing at the product.md file. Non-fatal issues (unknown fields, a
+created category) are carried on the product/report as warnings and printed
+as indented notes under each product, so errors and notes never blur
+together.
+
+Rejected Alternatives
+
+- Stopping at the first error (slow round-trips for the author)
+- A logging framework (too much for a small importer)

@@ -68,12 +68,13 @@ class Publisher
             }
 
             try {
-                $action = $this->importOne($dir);
+                [$action, $warnings] = $this->importOne($dir);
                 $report[] = [
                     'slug' => $slug,
                     'ok' => true,
                     'action' => $action,
                     'message' => "Product '{$slug}' {$action}.",
+                    'warnings' => $warnings,
                 ];
             } catch (ImportException $e) {
                 $report[] = [
@@ -81,6 +82,7 @@ class Publisher
                     'ok' => false,
                     'action' => 'failed',
                     'message' => $e->getMessage(),
+                    'warnings' => [],
                 ];
             }
         }
@@ -89,12 +91,16 @@ class Publisher
     }
 
     /**
-     * Import one product folder. Returns "created" or "updated".
+     * Import one product folder.
+     *
+     * @return array{0: string, 1: string[]} The action ("created" or
+     *         "updated") and any non-fatal warnings for the report.
      */
-    private function importOne(string $dir): string
+    private function importOne(string $dir): array
     {
         // Steps 2 & 3: read and validate.
         $product = $this->parser->parse($dir);
+        $warnings = $product->warnings;
 
         // Step 4: Markdown to HTML. Each "# " heading becomes a tab, and the
         // inline image URLs are rewritten to their public OpenCart location.
@@ -147,7 +153,7 @@ class Publisher
                     // the author in Markdown: no need to open OpenCart to add a
                     // category first.
                     $categoryId = $this->api->createCategory($category);
-                    fwrite(STDERR, "Note: created category '{$category}'.\n");
+                    $warnings[] = "Created category '{$category}'.";
                 }
                 $this->api->linkProductToCategory($productId, $categoryId);
             }
@@ -158,7 +164,7 @@ class Publisher
             throw $e;
         }
 
-        return $action;
+        return [$action, $warnings];
     }
 
     /**

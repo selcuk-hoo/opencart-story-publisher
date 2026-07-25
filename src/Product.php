@@ -26,6 +26,9 @@ class Product
     /** Download file names found inside downloads/, e.g. ["servo_mount.stl"]. */
     public array $downloads = [];
 
+    /** Non-fatal warnings found while reading the product, e.g. unknown fields. */
+    public array $warnings = [];
+
     /**
      * Read a metadata value, or return a default when it is missing.
      */

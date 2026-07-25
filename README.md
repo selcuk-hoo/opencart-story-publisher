@@ -104,8 +104,27 @@ php import.php servo-yatagi
 ```
 
 İçe aktarıcı her ürün için bir satır ve kısa bir özet yazdırır. Bir ürün
-başarısız olursa; hangi ürünün, neden başarısız olduğunu ve nasıl
-düzeltileceğini söyler, sonra kalanlarla devam eder.
+başarısız olursa; **o üründeki tüm sorunları bir arada** listeler, hangi
+dosyada olduğunu (`products/<klasör>/product.md`) söyler ve kalan ürünlerle
+devam eder. Böylece bir hatayı düzeltip tekrar çalıştırıp bir sonrakini
+bulmak yerine hepsini tek seferde görürsün.
+
+Örnek çıktı:
+
+```
+OK    servo-yatagi (updated)
+        note: Created category 'Kalıplar'.
+FAIL  bozuk-urun
+        2 problems:
+          - Missing field: price
+          - Invalid status 'belki' (use 'enabled' or 'disabled')
+          Fix in products/bozuk-urun/product.md
+
+5 created, 1 updated, 1 failed (7 total).
+```
+
+Kategori oluşturma gibi bilgilendirici notlar da ilgili ürünün altında
+`note:` olarak görünür; hata değildir, işlem başarıyla tamamlanmıştır.
 
 ## Windows'ta ürün ekleme (içerik editörü için)
 

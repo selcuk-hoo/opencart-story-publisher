@@ -28,7 +28,12 @@ class ProductParser
 
         [$meta, $markdown] = $this->splitFrontMatter($raw, $slug);
 
-        $this->validate($meta, $slug);
+        // Collect every problem, so the author sees them all at once instead
+        // of fixing one, re-running, and finding the next.
+        $errors = $this->collectErrors($meta);
+        if ($errors) {
+            throw new ImportException($this->formatErrors($slug, $errors));
+        }
 
         $product = new Product();
         $product->slug = $slug;
@@ -37,6 +42,7 @@ class ProductParser
         $product->markdown = $markdown;
         $product->images = $this->listFiles($productDir . '/images');
         $product->downloads = $this->listFiles($productDir . '/downloads');
+        $product->warnings = $this->collectWarnings($meta);
 
         return $product;
     }
@@ -103,37 +109,64 @@ class ProductParser
         return [$meta, trim($markdown)];
     }
 
-    private function validate(array $meta, string $slug): void
+    /**
+     * Return every metadata problem as a short, fixable message.
+     *
+     * @return string[]
+     */
+    private function collectErrors(array $meta): array
     {
+        $errors = [];
+
         foreach (self::REQUIRED_FIELDS as $field) {
             if (!isset($meta[$field]) || $meta[$field] === '') {
-                throw new ImportException("Missing field: {$field} (in product '{$slug}')");
+                $errors[] = "Missing field: {$field}";
             }
         }
 
-        if (!is_numeric($meta['price'])) {
-            throw new ImportException(
-                "Invalid price in '{$slug}': {$meta['price']}\n" .
-                "Price must be a number, for example: price: 149"
-            );
+        // Only check the value when the field is actually there; a missing
+        // field is already reported above.
+        if (isset($meta['price']) && $meta['price'] !== '' && !is_numeric($meta['price'])) {
+            $errors[] = "Invalid price '{$meta['price']}' (must be a number, e.g. price: 149)";
         }
 
         if (isset($meta['status']) && $meta['status'] !== '') {
             $status = strtolower($meta['status']);
             if ($status !== 'enabled' && $status !== 'disabled') {
-                throw new ImportException(
-                    "Invalid status in '{$slug}': {$meta['status']}\n" .
-                    "Status must be either 'enabled' or 'disabled'."
-                );
+                $errors[] = "Invalid status '{$meta['status']}' (use 'enabled' or 'disabled')";
             }
         }
 
-        // An unknown field is almost always a typo. Warn, but do not stop.
+        return $errors;
+    }
+
+    private function formatErrors(string $slug, array $errors): string
+    {
+        $count = count($errors);
+        $head = $count === 1 ? '1 problem:' : "{$count} problems:";
+        $lines = array_map(fn($error) => "  - {$error}", $errors);
+
+        return $head . "\n" . implode("\n", $lines) .
+            "\n  Fix in products/{$slug}/product.md";
+    }
+
+    /**
+     * Return non-fatal warnings. An unknown field is almost always a typo,
+     * so we point it out but still import the product.
+     *
+     * @return string[]
+     */
+    private function collectWarnings(array $meta): array
+    {
+        $warnings = [];
+
         foreach (array_keys($meta) as $key) {
             if (!in_array($key, self::KNOWN_FIELDS, true)) {
-                fwrite(STDERR, "Warning: unknown metadata field '{$key}' in '{$slug}' (ignored).\n");
+                $warnings[] = "Unknown field '{$key}' was ignored.";
             }
         }
+
+        return $warnings;
     }
 
     /**

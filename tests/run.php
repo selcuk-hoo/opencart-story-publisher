@@ -104,9 +104,21 @@ $dir = makeProduct($tmp, 'nofront', "no front matter here");
 $err = catchError(fn() => $parser->parse($dir));
 check('missing front matter is reported', str_contains($err, 'Missing front matter'));
 
+$dir = makeProduct($tmp, 'manyerrors', "---\nname: X\nmodel: M1\nstatus: maybe\n---\nBody");
+$err = catchError(fn() => $parser->parse($dir));
+check('reports all problems at once',
+    str_contains($err, 'Missing field: price') && str_contains($err, 'Invalid status'));
+check('error points at the product.md file', str_contains($err, 'products/manyerrors/product.md'));
+
+$dir = makeProduct($tmp, 'unknownfield', "---\nname: X\nmodel: M1\nprice: 5\ncolour: blue\n---\nBody");
+$product = $parser->parse($dir);
+check('unknown field is a warning, not an error',
+    count($product->warnings) === 1 && str_contains($product->warnings[0], 'colour'));
+
 $dir = makeProduct($tmp, 'quoted', "---\nname: \"Quoted Name\"\nmodel: Q1\nprice: 5\n---\nBody");
 $product = $parser->parse($dir);
 check('quotes around a value are stripped', $product->meta('name') === 'Quoted Name');
+check('a clean product has no warnings', $product->warnings === []);
 
 $dir = makeProduct($tmp, 'withsummary', "---\nname: X\nmodel: SM1\nprice: 5\nsummary: Kısa bir özet.\n---\nBody");
 $product = $parser->parse($dir);

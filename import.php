@@ -73,19 +73,33 @@ if (!$report) {
     exit(1);
 }
 
-// Print a short, readable report (docs/SPECIFICATION.md, section 12).
+// Print a clear, readable report (docs/SPECIFICATION.md, section 12).
+$created = 0;
+$updated = 0;
 $failures = 0;
+
 foreach ($report as $line) {
     if ($line['ok']) {
-        echo "OK   {$line['message']}\n";
+        $line['action'] === 'created' ? $created++ : $updated++;
+        echo "OK    {$line['slug']} ({$line['action']})\n";
+        foreach ($line['warnings'] as $warning) {
+            echo "        note: {$warning}\n";
+        }
     } else {
         $failures++;
-        echo "FAIL {$line['slug']}: {$line['message']}\n";
+        echo "FAIL  {$line['slug']}\n";
+        foreach (explode("\n", trim($line['message'])) as $messageLine) {
+            echo "        {$messageLine}\n";
+        }
     }
 }
 
-$total = count($report);
-$ok = $total - $failures;
-echo "\n{$ok} succeeded, {$failures} failed, {$total} total.\n";
+echo "\n";
+echo "{$created} created, {$updated} updated, {$failures} failed ("
+    . count($report) . " total).\n";
+
+if ($failures > 0) {
+    echo "Some products were not imported. Fix the problems above and run the import again.\n";
+}
 
 exit($failures > 0 ? 1 : 0);
