@@ -60,6 +60,9 @@ status: enabled
 - Görselleri sade adlarıyla göster, örneğin `![](prototip.jpg)`. İçe
   aktarıcı bunları OpenCart'a kopyalar ve yolları düzeltir. Asla OpenCart
   yolu yazma.
+- Büyük fotoğrafları elle küçültmene gerek yok. İçe aktarıcı, belirli bir
+  genişlikten (`MAX_IMAGE_WIDTH`, varsayılan 1600 piksel) büyük görselleri
+  otomatik küçültür. `images/` içindeki asıl dosyalarına dokunulmaz.
 
 ## Kurulum
 
@@ -214,6 +217,7 @@ src/                  İşlem hattı (pipeline)
     Scanner.php           Ürün klasörlerini bulur
     ProductParser.php     product.md dosyasını okur ve doğrular
     MarkdownRenderer.php  Hikâyeyi HTML'e (ve sekmelere) çevirir
+    ImageOptimizer.php    Büyük görselleri içe aktarırken küçültür
     Publisher.php         İçe aktarmayı yürütür, dosyaları kopyalar, rapor verir
     OpenCartApi.php       OpenCart veritabanına dokunan tek sınıf
     Product.php           Basit veri taşıyıcı

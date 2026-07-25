@@ -15,6 +15,7 @@ require __DIR__ . '/../src/Product.php';
 require __DIR__ . '/../src/Scanner.php';
 require __DIR__ . '/../src/ProductParser.php';
 require __DIR__ . '/../src/MarkdownRenderer.php';
+require __DIR__ . '/../src/ImageOptimizer.php';
 
 $tests = 0;
 $failures = 0;
@@ -125,6 +126,9 @@ check('rewrites image src to the public URL',
 $html = $renderer->render("![](unknown.jpg)", ['prototype.jpg' => 'x']);
 check('leaves unknown image src untouched', str_contains($html, 'src="unknown.jpg"'));
 
+$html = $renderer->render("![](hero.jpg)");
+check('adds img-fluid so images stay inside the page', str_contains($html, 'class="img-fluid"'));
+
 // --- MarkdownRenderer: tabs --------------------------------------------
 echo "MarkdownRenderer (tabs)\n";
 
@@ -145,6 +149,39 @@ $html = $renderer->renderTabs("![](prototype.jpg)\n\n# Problem\n\nText.",
     ['prototype.jpg' => 'image/catalog/story/x/prototype.jpg'], 'x');
 check('preamble before the first heading is kept',
     str_contains($html, 'src="image/catalog/story/x/prototype.jpg"'));
+
+// --- ImageOptimizer -----------------------------------------------------
+echo "ImageOptimizer\n";
+
+if (!extension_loaded('gd')) {
+    echo "  (skipped: the GD extension is not available)\n";
+} else {
+    $optimizer = new ImageOptimizer(1600, 82);
+
+    // A wide image must be shrunk to the maximum width, keeping its ratio.
+    $bigPath = $tmp . '/big.jpg';
+    $big = imagecreatetruecolor(3000, 1500);
+    imagejpeg($big, $bigPath);
+    $out = $tmp . '/big-out.jpg';
+    $optimizer->copy($bigPath, $out);
+    $size = getimagesize($out);
+    check('shrinks a too-wide image to the max width', $size[0] === 1600);
+    check('keeps the aspect ratio when shrinking', $size[1] === 800);
+
+    // A small image must be copied unchanged.
+    $smallPath = $tmp . '/small.jpg';
+    $small = imagecreatetruecolor(400, 300);
+    imagejpeg($small, $smallPath);
+    $out = $tmp . '/small-out.jpg';
+    $optimizer->copy($smallPath, $out);
+    $size = getimagesize($out);
+    check('leaves a small image at its original size', $size[0] === 400 && $size[1] === 300);
+
+    // A non-image file is still copied.
+    file_put_contents($tmp . '/notes.txt', 'hello');
+    $optimizer->copy($tmp . '/notes.txt', $tmp . '/notes-out.txt');
+    check('copies a non-image file as-is', file_get_contents($tmp . '/notes-out.txt') === 'hello');
+}
 
 // --- Result -------------------------------------------------------------
 echo "\n{$tests} checks, {$failures} failed.\n";

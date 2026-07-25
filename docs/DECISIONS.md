@@ -44,3 +44,26 @@ Rejected Alternatives
   (breaks the "never edit templates" rule)
 - A separate extension module with its own controller and view
   (too much for what a block of HTML can do)
+
+### Decision 003
+
+Optimize images automatically during import.
+
+Reason
+
+The author drops full-size phone or camera photos into images/. Serving
+them untouched makes the product page slow to load.
+
+How
+
+When copying an image into OpenCart, images wider than MAX_IMAGE_WIDTH are
+scaled down and re-encoded (ImageOptimizer). The source files in products/
+are never changed. Story images also get the Bootstrap "img-fluid" class so
+they never overflow the page.
+
+Rejected Alternatives
+
+- Asking the author to resize images by hand
+  (the author should only write and drop files)
+- A separate build step or external tool
+  (GD is already available and does the job)

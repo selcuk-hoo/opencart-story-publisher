@@ -15,6 +15,7 @@
 ## v0.2
 
 - [x] Story tabs (each "# " heading becomes a tab)
+- [x] Automatic image optimization (scale down large images on import)
 - [ ] Automatic galleries
 - [ ] Better error reporting
 

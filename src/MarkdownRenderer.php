@@ -37,7 +37,21 @@ class MarkdownRenderer
             $html = $this->rewriteImageUrls($html, $imageUrls);
         }
 
-        return $html;
+        return $this->makeImagesResponsive($html);
+    }
+
+    /**
+     * Add the Bootstrap "img-fluid" class to images that do not already have
+     * a class. OpenCart 4 ships Bootstrap 5, so this keeps images inside their
+     * container instead of overflowing the page.
+     */
+    private function makeImagesResponsive(string $html): string
+    {
+        return preg_replace(
+            '/<img\b(?![^>]*\bclass=)/i',
+            '<img class="img-fluid"',
+            $html
+        );
     }
 
     /**

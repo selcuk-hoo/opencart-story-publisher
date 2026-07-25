@@ -33,8 +33,18 @@ require __DIR__ . '/src/Product.php';
 require __DIR__ . '/src/Scanner.php';
 require __DIR__ . '/src/ProductParser.php';
 require __DIR__ . '/src/MarkdownRenderer.php';
+require __DIR__ . '/src/ImageOptimizer.php';
 require __DIR__ . '/src/OpenCartApi.php';
 require __DIR__ . '/src/Publisher.php';
+
+// Image optimization settings. Defaults are used when config.php does not
+// set them, so older config files keep working without any change.
+if (!defined('MAX_IMAGE_WIDTH')) {
+    define('MAX_IMAGE_WIDTH', 1600);
+}
+if (!defined('IMAGE_QUALITY')) {
+    define('IMAGE_QUALITY', 82);
+}
 
 $onlySlug = isset($argv[1]) ? $argv[1] : null;
 
@@ -44,6 +54,7 @@ try {
         new ProductParser(),
         new MarkdownRenderer(),
         new OpenCartApi(),
+        new ImageOptimizer(MAX_IMAGE_WIDTH, IMAGE_QUALITY),
         OPENCART_IMAGE_DIR,
         OPENCART_IMAGE_URL,
         OPENCART_DOWNLOAD_DIR

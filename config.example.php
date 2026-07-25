@@ -34,3 +34,10 @@ define('OPENCART_DOWNLOAD_DIR', '/var/www/opencart/system/storage/download');
 // Which language and store new products are created for.
 define('OPENCART_LANGUAGE_ID', 1);
 define('OPENCART_STORE_ID', 0);
+
+// --- Image optimization ------------------------------------------------
+// Images wider than this (in pixels) are scaled down when imported, so big
+// camera photos do not slow the product page. The source files are never
+// changed. Both lines are optional; these are the defaults.
+define('MAX_IMAGE_WIDTH', 1600);
+define('IMAGE_QUALITY', 82); // JPEG/WebP quality, 0-100

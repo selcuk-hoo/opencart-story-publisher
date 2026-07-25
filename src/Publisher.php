@@ -24,6 +24,7 @@ class Publisher
     private ProductParser $parser;
     private MarkdownRenderer $renderer;
     private OpenCartApi $api;
+    private ImageOptimizer $optimizer;
 
     // File locations, taken from config.php.
     private string $imageDir;      // OpenCart image/ directory
@@ -35,6 +36,7 @@ class Publisher
         ProductParser $parser,
         MarkdownRenderer $renderer,
         OpenCartApi $api,
+        ImageOptimizer $optimizer,
         string $imageDir,
         string $imageUrlBase,
         string $downloadDir
@@ -43,6 +45,7 @@ class Publisher
         $this->parser = $parser;
         $this->renderer = $renderer;
         $this->api = $api;
+        $this->optimizer = $optimizer;
         $this->imageDir = rtrim($imageDir, '/');
         $this->imageUrlBase = rtrim($imageUrlBase, '/') . '/';
         $this->downloadDir = rtrim($downloadDir, '/');
@@ -182,7 +185,9 @@ class Publisher
         foreach ($product->images as $name) {
             $from = $product->dir . '/images/' . $name;
             $to = $target . '/' . $name;
-            if (!@copy($from, $to)) {
+            // Shrinks the image first when it is larger than the configured
+            // maximum width; small images are copied unchanged.
+            if (!$this->optimizer->copy($from, $to)) {
                 throw new ImportException(
                     "Could not copy image '{$name}' in '{$product->slug}'.\n" .
                     "Check that the file exists and that OpenCart's image folder is writable."
