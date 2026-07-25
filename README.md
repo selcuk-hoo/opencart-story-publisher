@@ -15,36 +15,38 @@ Each product is a single folder:
 
 ```
 products/
-    servo-mount/
+    servo-yatagi/
         product.md
         images/
-            hero.jpg
-            prototype.jpg
+            kapak.jpg
+            stok-braket.jpg
             final.jpg
         downloads/
-            servo_mount.stl
-            source.step
+            servo-yatagi.stl
+            servo-yatagi.step
 ```
 
-`product.md` has metadata at the top and the story below:
+`product.md` has metadata at the top and the story below. Each top-level
+`#` heading becomes a tab on the product page, so you can write the story
+in the reader's own language:
 
 ```markdown
 ---
-name: Servo Mount Pro
-model: SMP001
+name: Servo Yatağı
+model: SRV-001
 price: 149
-category: 3D Models
-image: hero.jpg
+category: 3D Modeller
+image: kapak.jpg
 status: enabled
 ---
 
-# Problem
+# Sorun
 
 ...
 
-# Dream
+# Hayal
 
-![](prototype.jpg)
+![](stok-braket.jpg)
 ```
 
 - `name`, `model`, and `price` are required. `model` also identifies the
