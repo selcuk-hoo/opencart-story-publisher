@@ -40,7 +40,7 @@ require __DIR__ . '/src/Publisher.php';
 // Image optimization settings. Defaults are used when config.php does not
 // set them, so older config files keep working without any change.
 if (!defined('MAX_IMAGE_WIDTH')) {
-    define('MAX_IMAGE_WIDTH', 1600);
+    define('MAX_IMAGE_WIDTH', 600);
 }
 if (!defined('IMAGE_QUALITY')) {
     define('IMAGE_QUALITY', 82);

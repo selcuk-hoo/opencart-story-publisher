@@ -61,8 +61,9 @@ status: enabled
   aktarıcı bunları OpenCart'a kopyalar ve yolları düzeltir. Asla OpenCart
   yolu yazma.
 - Büyük fotoğrafları elle küçültmene gerek yok. İçe aktarıcı, belirli bir
-  genişlikten (`MAX_IMAGE_WIDTH`, varsayılan 1600 piksel) büyük görselleri
-  otomatik küçültür. `images/` içindeki asıl dosyalarına dokunulmaz.
+  genişlikten (`MAX_IMAGE_WIDTH`, varsayılan 600 piksel) büyük görselleri
+  otomatik küçültür; en-boy oranı korunur, görsel kırpılmaz. `images/`
+  içindeki asıl dosyalarına dokunulmaz.
 
 ## Kurulum
 

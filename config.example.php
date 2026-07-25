@@ -37,7 +37,8 @@ define('OPENCART_STORE_ID', 0);
 
 // --- Image optimization ------------------------------------------------
 // Images wider than this (in pixels) are scaled down when imported, so big
-// camera photos do not slow the product page. The source files are never
-// changed. Both lines are optional; these are the defaults.
-define('MAX_IMAGE_WIDTH', 1600);
+// camera photos do not slow the product page. The aspect ratio is kept, so
+// images are not cropped. The source files are never changed. Both lines are
+// optional; these are the defaults.
+define('MAX_IMAGE_WIDTH', 600);
 define('IMAGE_QUALITY', 82); // JPEG/WebP quality, 0-100
