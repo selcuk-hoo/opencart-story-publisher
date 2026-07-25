@@ -8,8 +8,6 @@ summary: Robot kolunuzdaki esnemeyi bitiren, desteksiz basılabilen sağlam bir 
 status: enabled
 ---
 
-![](kapak.jpg)
-
 # Sorun
 
 Küçük robot kolumun her hareketinde bir tereddüt vardı. Motor yön

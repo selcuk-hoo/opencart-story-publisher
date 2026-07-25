@@ -8,8 +8,6 @@ summary: Bölmeleri değiştirilebilen, üst üste istiflenebilen ve yaşayan me
 status: enabled
 ---
 
-![](kapak.jpg)
-
 # Sorun
 
 Çalışma masam bir kara deliğe dönmüştü. Kalemler, vidalar, mikro USB

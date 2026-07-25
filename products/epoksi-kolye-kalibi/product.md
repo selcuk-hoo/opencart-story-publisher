@@ -8,8 +8,6 @@ summary: Yaprak, damla ve altıgen formlarında bir epoksi kolye kalıbı seti; 
 status: enabled
 ---
 
-![](kapak.jpg)
-
 # Sorun
 
 Epoksi reçineyle takı yapmaya başladığımda en büyük engelim kalıplardı.

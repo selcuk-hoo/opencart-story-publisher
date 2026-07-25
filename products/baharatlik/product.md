@@ -8,8 +8,6 @@ summary: Mutfağınızı toparlayan modüler ve manyetik baharatlık; istediğin
 status: enabled
 ---
 
-![](kapak.jpg)
-
 # Sorun
 
 Mutfağımdaki en büyük kaos baharat dolabıydı. Yirmiye yakın kavanoz, hepsi

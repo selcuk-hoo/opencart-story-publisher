@@ -57,6 +57,8 @@ status: enabled
 - `category` OpenCart'ta önceden var olmalıdır (Sürüm 0.1 kategori
   oluşturmaz).
 - `image` ana ürün görselidir ve `images/` içinde bir dosya olmalıdır.
+  OpenCart bu kapağı ürün sayfasının üstünde otomatik gösterir; hikâyenin
+  içinde `![](kapak.jpg)` ile tekrar etmene gerek yok.
 - `summary` bir-iki cümlelik düz metin özettir. Sekmelerin üstünde kısa bir
   giriş olarak görünür ve **kategori/arama listelerinde** OpenCart'ın
   gösterdiği metindir. Yazmazsan, listelerde sekme başlıkları yan yana

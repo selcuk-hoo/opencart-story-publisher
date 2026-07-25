@@ -8,8 +8,6 @@ summary: İki parçalı, kolayca açılan bir beton saksı kalıbı; drenaj deli
 status: enabled
 ---
 
-![](kapak.jpg)
-
 # Sorun
 
 Evimin köşelerine yakışacak sade, geometrik beton saksılar arıyordum. Ama

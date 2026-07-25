@@ -8,8 +8,6 @@ summary: Gıdaya uygun, esnek bir çikolata kalıbı; hafif konik gözleri sayes
 status: enabled
 ---
 
-![](kapak.jpg)
-
 # Sorun
 
 Evde çikolata yapmayı seviyorum ama mağazadaki kalıplar beni hep aynı yere
