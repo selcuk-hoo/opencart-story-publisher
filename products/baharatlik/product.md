@@ -4,6 +4,7 @@ model: BHR-001
 price: 89
 category: 3D Modeller
 image: kapak.jpg
+summary: Mutfağınızı toparlayan modüler ve manyetik baharatlık; istediğiniz metal yüzeye yapışır, dilediğiniz kadar çoğaltırsınız ve her baharat göz hizasında durur.
 status: enabled
 ---
 

@@ -67,3 +67,27 @@ Rejected Alternatives
   (the author should only write and drop files)
 - A separate build step or external tool
   (GD is already available and does the job)
+
+### Decision 004
+
+Add an optional "summary" field for the listing text.
+
+Reason
+
+OpenCart shows a tag-stripped preview of the description in category and
+search listings. With a tabbed description that preview becomes the tab
+labels run together ("SorunHayalIlkPrototip..."), which is meaningless.
+
+How
+
+The author writes a one- or two-sentence "summary" in the front matter. It
+is placed as a plain paragraph at the very top of the description, so it
+reads as a short intro on the product page and is what the listing preview
+shows.
+
+Rejected Alternatives
+
+- Editing the listing template to use meta_description instead
+  (breaks the "never edit templates" rule)
+- Auto-generating the summary from the first paragraph
+  (would duplicate that paragraph on the page; an explicit field is clearer)

@@ -108,6 +108,10 @@ $dir = makeProduct($tmp, 'quoted', "---\nname: \"Quoted Name\"\nmodel: Q1\nprice
 $product = $parser->parse($dir);
 check('quotes around a value are stripped', $product->meta('name') === 'Quoted Name');
 
+$dir = makeProduct($tmp, 'withsummary', "---\nname: X\nmodel: SM1\nprice: 5\nsummary: Kısa bir özet.\n---\nBody");
+$product = $parser->parse($dir);
+check('reads the summary field', $product->meta('summary') === 'Kısa bir özet.');
+
 // --- MarkdownRenderer ---------------------------------------------------
 echo "MarkdownRenderer\n";
 $renderer = new MarkdownRenderer();

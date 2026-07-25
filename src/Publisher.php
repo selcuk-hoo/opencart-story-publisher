@@ -101,6 +101,15 @@ class Publisher
         $imageUrls = $this->imageUrlMap($product);
         $html = $this->renderer->renderTabs($product->markdown, $imageUrls, $product->slug);
 
+        // A plain-text summary at the very top. It reads as a short intro on
+        // the product page, and it is what OpenCart shows in category and
+        // search listings (OpenCart strips the tags there, which would
+        // otherwise turn the tab labels into gibberish).
+        $summary = $product->meta('summary');
+        if ($summary !== '') {
+            $html = '<p class="story-summary">' . htmlspecialchars($summary, ENT_QUOTES) . "</p>\n" . $html;
+        }
+
         // Step 5: copy images into OpenCart.
         $this->copyImages($product);
 

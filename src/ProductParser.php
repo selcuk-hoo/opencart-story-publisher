@@ -13,8 +13,8 @@ class ProductParser
     /** Metadata fields that every product must provide. */
     private const REQUIRED_FIELDS = ['name', 'model', 'price'];
 
-    /** Front matter keys we understand in Version 0.1 (docs/SPECIFICATION.md, section 6). */
-    private const KNOWN_FIELDS = ['name', 'model', 'price', 'category', 'image', 'status'];
+    /** Front matter keys we understand (docs/SPECIFICATION.md, section 6). */
+    private const KNOWN_FIELDS = ['name', 'model', 'price', 'category', 'image', 'status', 'summary'];
 
     public function parse(string $productDir): Product
     {

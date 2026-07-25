@@ -4,6 +4,7 @@ model: SRV-001
 price: 149
 category: 3D Modeller
 image: kapak.jpg
+summary: Robot kolunuzdaki esnemeyi bitiren, desteksiz basılabilen sağlam bir servo yatağı; bir kez sıkıp yıllarca güvenle kullanmak için tasarlandı.
 status: enabled
 ---
 

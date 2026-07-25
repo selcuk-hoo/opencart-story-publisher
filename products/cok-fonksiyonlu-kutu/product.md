@@ -4,6 +4,7 @@ model: KTU-001
 price: 119
 category: 3D Modeller
 image: kapak.jpg
+summary: Bölmeleri değiştirilebilen, üst üste istiflenebilen ve yaşayan menteşeli kapağıyla tek parça basılan çok amaçlı bir masa düzenleyici kutu.
 status: enabled
 ---
 

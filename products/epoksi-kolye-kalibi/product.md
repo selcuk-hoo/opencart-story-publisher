@@ -4,6 +4,7 @@ model: KLP-002
 price: 99
 category: Kalıplar
 image: kapak.jpg
+summary: Yaprak, damla ve altıgen formlarında bir epoksi kolye kalıbı seti; parlatılmış yüzeyi sayesinde reçineyi cam gibi pürüzsüz ve parlak çıkarır.
 status: enabled
 ---
 

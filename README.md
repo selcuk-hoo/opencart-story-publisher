@@ -38,6 +38,7 @@ model: SRV-001
 price: 149
 category: 3D Modeller
 image: kapak.jpg
+summary: Robot kolunuzdaki esnemeyi bitiren sağlam bir servo yatağı.
 status: enabled
 ---
 
@@ -56,6 +57,10 @@ status: enabled
 - `category` OpenCart'ta önceden var olmalıdır (Sürüm 0.1 kategori
   oluşturmaz).
 - `image` ana ürün görselidir ve `images/` içinde bir dosya olmalıdır.
+- `summary` bir-iki cümlelik düz metin özettir. Sekmelerin üstünde kısa bir
+  giriş olarak görünür ve **kategori/arama listelerinde** OpenCart'ın
+  gösterdiği metindir. Yazmazsan, listelerde sekme başlıkları yan yana
+  yapışıp anlamsız görünür; en az bir tam cümle yaz.
 - `status` değeri `enabled` ya da `disabled`'dır (varsayılan: `enabled`).
 - Görselleri sade adlarıyla göster, örneğin `![](prototip.jpg)`. İçe
   aktarıcı bunları OpenCart'a kopyalar ve yolları düzeltir. Asla OpenCart

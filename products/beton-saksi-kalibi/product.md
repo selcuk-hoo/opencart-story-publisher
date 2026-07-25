@@ -4,6 +4,7 @@ model: KLP-001
 price: 129
 category: Kalıplar
 image: kapak.jpg
+summary: İki parçalı, kolayca açılan bir beton saksı kalıbı; drenaj deliğini kendiliğinden bırakır ve tek kalıptan yüzlerce minimalist saksı dökmenizi sağlar.
 status: enabled
 ---
 

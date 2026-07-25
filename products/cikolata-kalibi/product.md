@@ -4,6 +4,7 @@ model: KLP-003
 price: 79
 category: Kalıplar
 image: kapak.jpg
+summary: Gıdaya uygun, esnek bir çikolata kalıbı; hafif konik gözleri sayesinde bonbonlar tek dokunuşta çıkar ve sonuç geometrik, pürüzsüz olur.
 status: enabled
 ---
 
