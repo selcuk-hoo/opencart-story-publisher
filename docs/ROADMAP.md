@@ -2,13 +2,13 @@
 
 ## v0.1
 
-- [ ] Scanner
-- [ ] Product Parser
-- [ ] Markdown conversion
-- [ ] Product creation
-- [ ] Product update
-- [ ] Image import
-- [ ] Download import
+- [x] Scanner
+- [x] Product Parser
+- [x] Markdown conversion
+- [x] Product creation
+- [x] Product update
+- [x] Image import
+- [x] Download import
 
 ---
 
