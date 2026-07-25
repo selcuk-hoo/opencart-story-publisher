@@ -67,7 +67,9 @@ Ekte üç farklı form için baskıya hazır STL dosyaları ve kendi formunuzu
 tasarlamak isterseniz STEP kaynağı var. Her kalıpta asma halkası için delik
 yeri hazır geliyor.
 
-![](formlar.jpg)
+![](form-yaprak.jpg)
+![](form-damla.jpg)
+![](form-altigen.jpg)
 
 Önerilen baskı: en ince katman yüksekliği, yavaş hız, %100 dolgu (kalıp ince
 olduğu için). Döküm öncesi kalıbı parlatıp ayırıcı sürmeyi unutmayın —

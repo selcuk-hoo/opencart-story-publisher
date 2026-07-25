@@ -16,7 +16,7 @@
 
 - [x] Story tabs (each "# " heading becomes a tab)
 - [x] Automatic image optimization (scale down large images on import)
-- [ ] Automatic galleries
+- [x] Automatic galleries (neighbouring images become a grid)
 - [ ] Better error reporting
 
 ---

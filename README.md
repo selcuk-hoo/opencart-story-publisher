@@ -193,6 +193,24 @@ görsel o sekmede görünür:
 - Baştaki `image:` alanı ayrıdır: o, ürünün **kapak (ana) görselidir** ve
   sekmelerden bağımsızdır. O da `images/` içinde bir dosya olmalıdır.
 
+#### Yan yana galeri
+
+Birkaç görseli **alt alta, aralarında yazı olmadan** yazarsan, otomatik
+olarak **yan yana bir galeri** olurlar. Tek görsel tam genişlikte kalır.
+Ekstra bir işaret yazmana gerek yok:
+
+```markdown
+# Paylaşım
+
+![](yaprak.jpg)
+![](damla.jpg)
+![](altigen.jpg)
+```
+
+Bu üç görsel ürün sayfasında yan yana bir ızgara olarak görünür (telefonda
+ikili, geniş ekranda üçlü sıra). Aralarına bir cümle koyarsan galeri olmaz,
+her biri ayrı ayrı gösterilir.
+
 ### 3. Windows'a özel dikkat edilecekler
 
 - **Dosya uzantısı tuzağı:** Windows dosya uzantılarını gizler. Not

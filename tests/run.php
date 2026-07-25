@@ -133,6 +133,27 @@ check('leaves unknown image src untouched', str_contains($html, 'src="unknown.jp
 $html = $renderer->render("![](hero.jpg)");
 check('adds img-fluid so images stay inside the page', str_contains($html, 'class="img-fluid"'));
 
+// --- MarkdownRenderer: galleries ---------------------------------------
+echo "MarkdownRenderer (galleries)\n";
+
+$html = $renderer->render("![](a.jpg)\n\n![](b.jpg)");
+check('two images become a gallery', str_contains($html, 'story-gallery'));
+check('gallery has one cell per image', substr_count($html, 'col-md-') === 2);
+check('two images use half-width columns', str_contains($html, 'col-md-6'));
+
+$html = $renderer->render("![](a.jpg)\n\n![](b.jpg)\n\n![](c.jpg)");
+check('three images use third-width columns', str_contains($html, 'col-md-4'));
+check('three images make three cells', substr_count($html, 'col-md-4') === 3);
+
+$html = $renderer->render("![](a.jpg)\n![](b.jpg)");
+check('images on consecutive lines also form a gallery', str_contains($html, 'story-gallery'));
+
+$html = $renderer->render("![](only.jpg)");
+check('a single image is not a gallery', !str_contains($html, 'story-gallery'));
+
+$html = $renderer->render("![](a.jpg)\n\nAralarında metin var.\n\n![](b.jpg)");
+check('images split by text are not merged', !str_contains($html, 'story-gallery'));
+
 // --- MarkdownRenderer: tabs --------------------------------------------
 echo "MarkdownRenderer (tabs)\n";
 

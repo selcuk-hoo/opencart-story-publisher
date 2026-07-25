@@ -37,7 +37,56 @@ class MarkdownRenderer
             $html = $this->rewriteImageUrls($html, $imageUrls);
         }
 
+        $html = $this->buildGalleries($html);
+
         return $this->makeImagesResponsive($html);
+    }
+
+    /**
+     * Turn runs of neighbouring images into a responsive gallery grid.
+     *
+     * When the author writes two or more images next to each other, they are
+     * shown side by side instead of stacked. A single image is left alone. No
+     * new syntax is needed: the author just puts the images together
+     * (docs/ROADMAP.md, "Automatic galleries").
+     */
+    private function buildGalleries(string $html): string
+    {
+        // Case 1: several images inside one paragraph (consecutive lines,
+        // no blank line between them).
+        $html = preg_replace_callback(
+            '#<p>\s*((?:<img\b[^>]*>\s*){2,})</p>#i',
+            fn($m) => $this->galleryFrom($m[1]),
+            $html
+        );
+
+        // Case 2: several single-image paragraphs in a row (a blank line
+        // between each image).
+        $html = preg_replace_callback(
+            '#(?:<p>\s*<img\b[^>]*>\s*</p>\s*){2,}#i',
+            fn($m) => $this->galleryFrom($m[0]),
+            $html
+        );
+
+        return $html;
+    }
+
+    /** Build a Bootstrap grid from all the images found in an HTML chunk. */
+    private function galleryFrom(string $chunk): string
+    {
+        preg_match_all('#<img\b[^>]*>#i', $chunk, $matches);
+        $images = $matches[0];
+
+        // Two images sit two-per-row; three or more sit three-per-row on wide
+        // screens. On phones they are always two-per-row.
+        $colMd = count($images) === 2 ? 6 : 4;
+
+        $cells = '';
+        foreach ($images as $img) {
+            $cells .= '<div class="col-6 col-md-' . $colMd . '">' . $img . '</div>';
+        }
+
+        return '<div class="row g-2 story-gallery">' . $cells . '</div>';
     }
 
     /**

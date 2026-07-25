@@ -115,3 +115,26 @@ Rejected Alternatives
   (forces the author out of Markdown and into the admin)
 - Guessing/fuzzy-matching near category names
   (surprising; exact names are predictable)
+
+### Decision 006
+
+Turn neighbouring images into a gallery automatically.
+
+Reason
+
+Several images in a row looked better side by side than stacked full-width,
+and the author should not have to write any special markup.
+
+How
+
+When two or more images sit next to each other (consecutive lines, or single
+image paragraphs in a row), MarkdownRenderer wraps them in a Bootstrap grid
+(story-gallery). A single image is left full-width. Images split by text stay
+separate.
+
+Rejected Alternatives
+
+- A custom gallery syntax or shortcode
+  (the author should only write plain Markdown)
+- A lightbox / click-to-zoom
+  (extra JavaScript; can be added later if needed)
