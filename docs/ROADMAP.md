@@ -1,28 +1,28 @@
-# Roadmap
+# Yol Haritası
 
 ## v0.1
 
-- [x] Scanner
-- [x] Product Parser
-- [x] Markdown conversion
-- [x] Product creation
-- [x] Product update
-- [x] Image import
-- [x] Download import
+- [x] Tarayıcı (Scanner)
+- [x] Ürün ayrıştırıcı (Product Parser)
+- [x] Markdown dönüşümü
+- [x] Ürün oluşturma
+- [x] Ürün güncelleme
+- [x] Görsel içe aktarma
+- [x] İndirilebilir dosya içe aktarma
 
 ---
 
 ## v0.2
 
-- [x] Story tabs (each "# " heading becomes a tab)
-- [x] Automatic image optimization (scale down large images on import)
-- [x] Automatic galleries (neighbouring images become a grid)
-- [x] Better error reporting (all problems at once, warnings in the report)
+- [x] Hikâye sekmeleri (her `# ` başlığı bir sekme olur)
+- [x] Otomatik görsel optimizasyonu (büyük görselleri içe aktarırken küçültme)
+- [x] Otomatik galeriler (arka arkaya görseller ızgara olur)
+- [x] Daha iyi hata raporlama (tüm sorunlar bir arada, uyarılar raporda)
 
 ---
 
 ## v0.3
 
-- [ ] Multi-language
-- [ ] SEO improvements
-- [ ] Static site export
+- [ ] Çok dillilik
+- [ ] SEO iyileştirmeleri
+- [ ] Statik site dışa aktarımı

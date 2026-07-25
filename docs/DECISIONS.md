@@ -1,163 +1,133 @@
-# Architectural Decisions
+# Mimari Kararlar
 
-## 2026-07-25
+Bu belge, projenin gidişatını etkileyen kararları ve gerekçelerini kaydeder.
+Yeni önemli bir karar alındığında buraya kısa bir madde eklenir.
 
-### Decision 001
+---
 
-Use exactly one Markdown file per product.
+## Karar 001 — Ürün başına tek Markdown dosyası
 
-Reason
+**Karar:** Her ürün için tam olarak bir Markdown dosyası kullan.
 
-The content editor is not a programmer.
+**Gerekçe:** İçerik editörü programcı değildir.
 
-Advantages
+**Avantajlar:** Daha kolay düzenleme, sürüm kontrolü, içe aktarma ve
+belgeleme.
 
-- Easier editing
-- Easier version control
-- Easier import
-- Easier documentation
+**Reddedilen alternatifler:** Birden çok Markdown dosyası, Word belgeleri,
+HTML düzenleme.
 
-Rejected Alternatives
+---
 
-- Multiple Markdown files
-- Word documents
-- HTML editing
+## Karar 002 — Hikâyeyi sekmelerle göstermek
 
-### Decision 002
+**Karar:** Hikâyeyi, her üst düzey `# ` başlığı bir sekme olacak şekilde
+göster.
 
-Render the story as tabs, one tab per top-level "# " heading.
+**Gerekçe:** Hikâyenin belirgin bölümleri var (Sorun, Hayal, ...). Sekmeler,
+müşterinin uzun bir sayfayı kaydırmak yerine bölümler arasında gezinmesini
+sağlar.
 
-Reason
+**Nasıl:** Sekme işaretlemesi, ürün açıklamasının içine yazılan kendi kendine
+yeten Bootstrap 5'tir. OpenCart 4 zaten Bootstrap 5 yükler, dolayısıyla hiçbir
+tema/şablon değişmez. Markdown, editörün dokunduğu tek şey olarak kalır.
 
-The story has clear sections (Problem, Dream, ...). Tabs let the customer
-move between them instead of scrolling one long page.
+**Reddedilen alternatifler:** OpenCart ürün sayfası şablonunu düzenleyip yerel
+sekmeler eklemek ("şablonları asla düzenleme" kuralını çiğner); kendi
+controller/view'ı olan ayrı bir eklenti modülü (bir blok HTML'in yapabileceği
+iş için fazla).
 
-How
+---
 
-The tab markup is self-contained Bootstrap 5 written into the product
-description. OpenCart 4 already loads Bootstrap 5, so no theme or template
-is modified. This keeps Markdown the only thing the editor touches.
+## Karar 003 — İçe aktarmada görselleri otomatik optimize etmek
 
-Rejected Alternatives
+**Karar:** Görselleri içe aktarma sırasında otomatik optimize et.
 
-- Editing the OpenCart product-page template to add native tabs
-  (breaks the "never edit templates" rule)
-- A separate extension module with its own controller and view
-  (too much for what a block of HTML can do)
+**Gerekçe:** Yazar, tam boyutlu telefon/kamera fotoğraflarını `images/` içine
+koyar. Bunları olduğu gibi sunmak ürün sayfasını yavaşlatır.
 
-### Decision 003
+**Nasıl:** OpenCart'a kopyalarken `MAX_IMAGE_WIDTH`'tan geniş görseller
+küçültülüp yeniden kaydedilir (`ImageOptimizer`). `products/` içindeki kaynak
+dosyalar değişmez. Hikâye görselleri ayrıca Bootstrap `img-fluid` sınıfı alır,
+böylece sayfadan taşmaz.
 
-Optimize images automatically during import.
+**Reddedilen alternatifler:** Yazardan görselleri elle küçültmesini istemek
+(yazar yalnızca yazıp dosya koymalı); ayrı bir yapı adımı veya harici araç
+(GD zaten mevcut ve işi görüyor).
 
-Reason
+---
 
-The author drops full-size phone or camera photos into images/. Serving
-them untouched makes the product page slow to load.
+## Karar 004 — Liste metni için `summary` alanı
 
-How
+**Karar:** Liste metni için opsiyonel bir `summary` alanı ekle.
 
-When copying an image into OpenCart, images wider than MAX_IMAGE_WIDTH are
-scaled down and re-encoded (ImageOptimizer). The source files in products/
-are never changed. Story images also get the Bootstrap "img-fluid" class so
-they never overflow the page.
+**Gerekçe:** OpenCart, kategori/arama listelerinde açıklamanın etiketleri
+soyulmuş bir önizlemesini gösterir. Sekmeli bir açıklamada bu önizleme, sekme
+etiketlerinin yan yana yapışmasına dönüşür ("SorunHayalIlkPrototip...") ve
+anlamsızdır.
 
-Rejected Alternatives
+**Nasıl:** Yazar front matter'a bir-iki cümlelik `summary` yazar. Bu, açıklamanın
+en üstüne düz bir paragraf olarak konur; ürün sayfasında kısa bir giriş,
+listede ise önizleme metni olur.
 
-- Asking the author to resize images by hand
-  (the author should only write and drop files)
-- A separate build step or external tool
-  (GD is already available and does the job)
+**Reddedilen alternatifler:** Liste şablonunu `meta_description` kullanacak
+şekilde düzenlemek ("şablonları asla düzenleme" kuralını çiğner); özeti ilk
+paragraftan otomatik üretmek (o paragrafı sayfada tekrar ederdi; açık bir alan
+daha nettir).
 
-### Decision 004
+---
 
-Add an optional "summary" field for the listing text.
+## Karar 005 — Kategori yoksa otomatik oluşturmak
 
-Reason
+**Karar:** Kategori mevcut değilse otomatik oluştur.
 
-OpenCart shows a tag-stripped preview of the description in category and
-search listings. With a tabbed description that preview becomes the tab
-labels run together ("SorunHayalIlkPrototip..."), which is meaningless.
+**Gerekçe:** v0.1 yalnızca var olan kategoriye bağlanıyordu; bu yüzden yazarın
+içe aktarmadan önce OpenCart'a girip elle kategori eklemesi gerekiyordu. Bu,
+"yalnızca Markdown'a dokun" akışını bozar.
 
-How
+**Nasıl:** Bir ürün, bulunmayan bir kategori adı verdiğinde içe aktarıcı onu
+üst düzey bir kategori olarak oluşturur (`findCategoryIdByName` /
+`createCategory`) ve kısa bir not yazdırır. Yanlış yazılmış bir kategori yeni
+bir kategori oluşturacağından, not bunu görünür kılar.
 
-The author writes a one- or two-sentence "summary" in the front matter. It
-is placed as a plain paragraph at the very top of the description, so it
-reads as a short intro on the product page and is what the listing preview
-shows.
+**Reddedilen alternatifler:** "Kategori önceden var olmalı" kuralını korumak
+(yazarı Markdown'dan çıkarıp yönetim paneline sokar); yakın kategori adlarını
+tahmin/bulanık eşleştirme (sürpriz; tam adlar öngörülebilir).
 
-Rejected Alternatives
+---
 
-- Editing the listing template to use meta_description instead
-  (breaks the "never edit templates" rule)
-- Auto-generating the summary from the first paragraph
-  (would duplicate that paragraph on the page; an explicit field is clearer)
+## Karar 006 — Arka arkaya görselleri otomatik galeriye çevirmek
 
-### Decision 005
+**Karar:** Komşu görselleri otomatik olarak galeriye çevir.
 
-Create a category automatically when it does not exist.
+**Gerekçe:** Arka arkaya birkaç görsel, alt alta tam genişlik yerine yan yana
+daha iyi görünüyordu ve yazarın özel bir işaretleme yazması gerekmemeli.
 
-Reason
+**Nasıl:** İki veya daha fazla görsel yan yana geldiğinde (arka arkaya satırlar
+ya da art arda tek görselli paragraflar), `MarkdownRenderer` bunları bir
+Bootstrap ızgarasına (`story-gallery`) sarar. Tek görsel tam genişlikte kalır.
+Aralarına metin giren görseller ayrı kalır.
 
-Version 0.1 only linked to existing categories, so the author had to open
-OpenCart and add a category by hand before importing. That breaks the
-"only touch Markdown" workflow.
+**Reddedilen alternatifler:** Özel bir galeri sözdizimi veya kısa kod (yazar
+yalnızca düz Markdown yazmalı); ışık kutusu / tıkla-büyüt (ek JavaScript;
+gerekirse sonra eklenebilir).
 
-How
+---
 
-When a product names a category that is not found, the importer creates it
-as a top-level category (findCategoryIdByName / createCategory) and prints a
-short note. A misspelled category therefore creates a new one, so the note
-makes that visible.
+## Karar 007 — Tüm sorunları bir arada raporlamak, uyarıyı hatadan ayırmak
 
-Rejected Alternatives
+**Karar:** Bir üründeki tüm sorunları bir arada raporla; uyarıları hatalardan
+ayır.
 
-- Keeping the "category must already exist" rule
-  (forces the author out of Markdown and into the admin)
-- Guessing/fuzzy-matching near category names
-  (surprising; exact names are predictable)
+**Gerekçe:** Ayrıştırıcı ilk bozuk alanda duruyordu; yazar bir şeyi düzeltip
+tekrar çalıştırıyor ve bir sonrakini buluyordu. Uyarılar da doğrudan ekrana,
+sonuçların arasına karışıyordu.
 
-### Decision 006
+**Nasıl:** `ProductParser` her metadata sorununu toplayıp birlikte raporlar ve
+`product.md` dosyasını işaret eder. Ölümcül olmayan durumlar (bilinmeyen alan,
+oluşturulan kategori) rapora uyarı olarak taşınır ve her ürünün altında girintili
+`note:` satırları olarak yazdırılır; böylece hatalar ve notlar birbirine
+karışmaz.
 
-Turn neighbouring images into a gallery automatically.
-
-Reason
-
-Several images in a row looked better side by side than stacked full-width,
-and the author should not have to write any special markup.
-
-How
-
-When two or more images sit next to each other (consecutive lines, or single
-image paragraphs in a row), MarkdownRenderer wraps them in a Bootstrap grid
-(story-gallery). A single image is left full-width. Images split by text stay
-separate.
-
-Rejected Alternatives
-
-- A custom gallery syntax or shortcode
-  (the author should only write plain Markdown)
-- A lightbox / click-to-zoom
-  (extra JavaScript; can be added later if needed)
-
-### Decision 007
-
-Report all problems at once, and separate warnings from errors.
-
-Reason
-
-The parser used to stop at the first bad field, so the author fixed one
-thing, re-ran, and found the next. Warnings were also printed straight to
-the console, mixed in with the results.
-
-How
-
-ProductParser collects every metadata problem and reports them together,
-pointing at the product.md file. Non-fatal issues (unknown fields, a
-created category) are carried on the product/report as warnings and printed
-as indented notes under each product, so errors and notes never blur
-together.
-
-Rejected Alternatives
-
-- Stopping at the first error (slow round-trips for the author)
-- A logging framework (too much for a small importer)
+**Reddedilen alternatifler:** İlk hatada durmak (yazar için yavaş gidiş-geliş);
+bir loglama çerçevesi (küçük bir içe aktarıcı için fazla).

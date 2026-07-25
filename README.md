@@ -7,8 +7,14 @@ ve indirilebilir dosyaları klasöre koyar ve içe aktarıcıyı çalıştırır
 OpenCart senin için güncellenir. HTML, PHP, SQL ya da OpenCart şablonlarını
 asla düzenlemezsin.
 
-Tam Sürüm 0.1 belirtimi için `docs/SPECIFICATION.md`, tasarım felsefesi için
-`talimatlar.md` dosyalarına bakabilirsin.
+Daha fazla belge:
+
+- `docs/SPECIFICATION.md` — güncel özellik belirtimi
+- `docs/ARCHITECTURE.md` — kod mimarisi (bakımı yapan için)
+- `docs/MAINTENANCE.md` — kurulum, izinler, sorun giderme
+- `docs/DECISIONS.md` — mimari kararlar ve gerekçeleri
+- `docs/ROADMAP.md` — yol haritası
+- `talimatlar.md` — tasarım felsefesi
 
 ## Bir ürün nasıl görünür
 

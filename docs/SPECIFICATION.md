@@ -1,339 +1,249 @@
-# Story Publisher Specification
+# Story Publisher Spesifikasyonu
 
-Version: 0.1
+Sürüm: 0.2
 
----
-
-# 1. Purpose
-
-Story Publisher is an OpenCart 4 extension for publishing engineering and maker projects.
-
-Unlike a traditional e-commerce system, every product represents a design journey.
-
-The goal is not only to sell digital files but also to explain how and why the design evolved.
-
-The story is the main content.
-
-The shop is only the publishing platform.
+> Not: Bu belge projenin **güncel** durumunu anlatır. Tarihsel v0.1 kapsamı
+> için git geçmişine ve `docs/ROADMAP.md`'ye bakılabilir. Mimari ayrıntılar
+> `docs/ARCHITECTURE.md`, kararların gerekçeleri `docs/DECISIONS.md`
+> içindedir.
 
 ---
 
-# 2. Design Philosophy
+## 1. Amaç
 
-This project is intentionally simple.
+Story Publisher, mühendislik ve maker projelerini yayınlamak için bir
+OpenCart 4 aracıdır.
 
-The content creator should only write Markdown and add files to a folder.
+Geleneksel bir e-ticaret sisteminden farklı olarak her ürün bir tasarım
+yolculuğunu temsil eder. Amaç yalnızca dijital dosya satmak değil, tasarımın
+nasıl ve neden evrildiğini de anlatmaktır.
 
-Everything else should happen automatically.
-
-The complete workflow should eventually become:
-
-Write Markdown
-
-↓
-
-Copy images
-
-↓
-
-Copy downloadable files
-
-↓
-
-Press Import
-
-↓
-
-Product appears in OpenCart
+Hikâye asıl içeriktir. Mağaza yalnızca yayınlama platformudur.
 
 ---
 
-# 3. Project Goals
+## 2. Tasarım felsefesi
 
-The project must
+Proje bilinçli olarak basittir. İçerik üreticisi yalnızca Markdown yazar ve
+bir klasöre dosya koyar; gerisi otomatik olur.
 
-- require minimal technical knowledge
-- avoid manual HTML editing
-- avoid repetitive work
-- make publishing enjoyable
-- encourage storytelling
+Hedeflenen tam akış:
+
+Markdown yaz → Görselleri koy → İndirilebilir dosyaları koy → İçe aktar →
+Ürün OpenCart'ta belirir.
 
 ---
 
-# 4. Product Structure
+## 3. Ürün yapısı
 
-Each product is stored in one directory.
+Her ürün tek bir klasördür:
 
-Example
-
+```
 products/
-
-    servo-mount/
-
+    servo-yatagi/
         product.md
-
         images/
-
-            hero.jpg
-            prototype.jpg
+            kapak.jpg
+            stok-braket.jpg
             final.jpg
-
         downloads/
+            servo-yatagi.stl
+            servo-yatagi.step
+```
 
-            servo_mount.stl
-            source.step
-
-No other files should be required.
-
----
-
-# 5. product.md
-
-Each product contains exactly one Markdown document.
-
-It consists of two parts.
-
-1.
-
-Metadata
-
-2.
-
-Markdown body
-
-Example
+Başka dosya gerekmez.
 
 ---
-name: Servo Mount Pro
-model: SMP001
+
+## 4. product.md
+
+Her ürün tam olarak bir Markdown belgesi içerir. İki bölümden oluşur:
+
+1. Metadata (front matter)
+2. Markdown gövdesi (hikâye)
+
+Örnek:
+
+```markdown
+---
+name: Servo Yatağı
+model: SRV-001
 price: 149
-category: 3D Models
-image: hero.jpg
+category: 3D Modeller
+image: kapak.jpg
+summary: Robot kolunuzdaki esnemeyi bitiren sağlam bir servo yatağı.
 status: enabled
 ---
 
-# Problem
+# Sorun
 
 ...
 
-# Dream
+# Hayal
 
-...
-
-# First Prototype
-
-...
-
-# Development
-
-...
-
-# Sharing
-
-...
-
-# Inspiration
-
-...
+![](stok-braket.jpg)
+```
 
 ---
 
-# 6. Metadata
+## 5. Metadata alanları
 
-Initially supported fields
+| Alan | Zorunlu | Açıklama |
+|---|---|---|
+| `name` | Evet | Ürün adı |
+| `model` | Evet | Benzersiz tanımlayıcı; tekrar içe aktarma bu alana göre günceller |
+| `price` | Evet | Sayı olmalıdır |
+| `category` | Hayır | Ürün kategorisi; yoksa otomatik oluşturulur (bkz. 11) |
+| `image` | Hayır | Kapak görseli; `images/` içinde bir dosya olmalı |
+| `summary` | Hayır (önerilir) | Liste önizlemesi ve kısa giriş metni (bkz. 9) |
+| `status` | Hayır | `enabled` veya `disabled` (varsayılan `enabled`) |
 
-name
-
-model
-
-price
-
-category
-
-image
-
-status
-
-Additional fields may be added later.
+Bilinmeyen bir alan hata değildir; uyarı olarak raporlanır ve yok sayılır.
 
 ---
 
-# 7. Story Sections
+## 6. Hikâye bölümleri ve sekmeler
 
-The recommended section order is
+Hikâye, üst düzey `#` başlıklarıyla bölümlere ayrılır. **Her `#` başlığı, ürün
+sayfasında ayrı bir sekme olur.** Başlık metni sekmenin etiketidir.
 
-Problem
+Önerilen bölüm sırası: Sorun, Hayal, İlk Prototip, Geliştirme, Paylaşım, İlham.
+Ancak sabit bir başlık kümesi zorunlu değildir; yazar istediği başlıkları,
+istediği dilde kullanabilir.
 
-Dream
-
-First Prototype
-
-Development
-
-Sharing
-
-Inspiration
-
-Authors may omit sections if necessary.
-
-The importer should never require a fixed set of headings.
+Sekmeler, ürün açıklamasının içine yazılan kendi kendine yeten Bootstrap 5
+işaretlemesidir; OpenCart teması/şablonu düzenlenmez.
 
 ---
 
-# 8. Images
+## 7. Görseller
 
-Images are stored inside
+Görseller `images/` içinde saklanır ve Markdown'da sade adlarıyla gösterilir:
 
-images/
+```
+![](prototip.jpg)
+```
 
-Markdown references them normally.
-
-Example
-
-![](prototype.jpg)
-
-The importer automatically copies the images into OpenCart.
-
-Image paths should never contain OpenCart directories.
+İçe aktarıcı görselleri OpenCart'a kopyalar ve yolları otomatik düzeltir.
+Yazar asla OpenCart yolu yazmaz.
 
 ---
 
-# 9. Downloads
+## 8. Otomatik galeriler
 
-Downloads are stored inside
-
-downloads/
-
-Initially supported formats
-
-STL
-
-STEP
-
-ZIP
-
-PDF
-
-Later versions may support additional formats.
+Arka arkaya (aralarında metin olmadan) yazılan iki veya daha fazla görsel,
+otomatik olarak yan yana bir ızgara (galeri) olarak gösterilir. Tek görsel
+tam genişlikte kalır. Ek bir sözdizimi gerekmez.
 
 ---
 
-# 10. Import Process
+## 9. Görsel optimizasyonu
 
-The importer performs the following steps.
-
-1.
-
-Find product folders.
-
-2.
-
-Read product.md.
-
-3.
-
-Validate metadata.
-
-4.
-
-Convert Markdown to HTML.
-
-5.
-
-Copy images.
-
-6.
-
-Copy downloadable files.
-
-7.
-
-Create or update the OpenCart product.
-
-8.
-
-Report success or failure.
+Belirli bir genişlikten (`MAX_IMAGE_WIDTH`, varsayılan 600 piksel) büyük
+görseller, içe aktarma sırasında en-boy oranı korunarak küçültülür ve yeniden
+kaydedilir. Kaynak dosyalara dokunulmaz. Böylece büyük fotoğraflar sayfayı
+yavaşlatmaz.
 
 ---
 
-# 11. Updates
+## 10. Özet (summary)
 
-Importing the same product again should update the existing product.
+`summary` alanı bir-iki cümlelik düz metin özettir. Ürün açıklamasının en
+üstüne kısa bir giriş olarak yerleştirilir ve OpenCart'ın kategori/arama
+listelerinde gösterdiği önizleme metnidir.
 
-The importer should avoid creating duplicates.
-
-The product model is the preferred unique identifier.
+Bir sekmeli açıklamada OpenCart, önizleme için HTML'i soyduğunda sekme
+etiketleri yan yana yapışır ve anlamsız görünür. `summary`, bu önizlemeyi
+temiz ve okunur tutar.
 
 ---
 
-# 12. Error Reporting
+## 11. Kategoriler
 
-Errors must always explain
+`category` alanındaki kategori OpenCart'ta varsa ürün ona bağlanır. Yoksa içe
+aktarıcı onu üst düzey bir kategori olarak **otomatik oluşturur** ve bir not
+raporlar. Böylece yeni kategori için OpenCart'a girmeye gerek kalmaz.
 
-which product failed
+Kategori adının yazımına dikkat edilmelidir; yanlış yazım, yanlış adda yeni bir
+kategori oluşturur.
 
-what failed
+---
 
-how to fix it
+## 12. İndirilebilir dosyalar
 
-Example
+İndirilebilir dosyalar `downloads/` içinde saklanır. Desteklenen örnek
+biçimler: STL, STEP, ZIP, PDF. İçe aktarıcı bunları OpenCart depolamasına
+kopyalar ve ürüne bağlar. Tekrar içe aktarma, aynı ürünün eski indirmelerini
+temizleyip yeniden ekler.
 
+---
+
+## 13. İçe aktarma süreci
+
+İçe aktarıcı her ürün için şu adımları izler:
+
+1. Ürün klasörlerini bul.
+2. product.md'yi oku.
+3. Metadatayı doğrula.
+4. Markdown'ı sekmeli HTML'e çevir.
+5. Görselleri kopyala (gerekirse küçülterek).
+6. İndirilebilir dosyaları kopyala.
+7. OpenCart ürününü oluştur veya güncelle (kategori yoksa oluştur).
+8. Başarı veya başarısızlığı raporla.
+
+---
+
+## 14. Güncelleme ve benzersizlik
+
+Aynı ürünü tekrar içe aktarmak mevcut ürünü günceller; kopya oluşturmaz.
+Benzersiz tanımlayıcı olarak ürünün `model` alanı kullanılır.
+
+---
+
+## 15. Ürün kaldırma
+
+İçe aktarıcı ürün **silmez**. Bir ürünü kaldırmak için iki yol vardır:
+
+- Mağazadan gizlemek: product.md'de `status: disabled` yapıp tekrar içe
+  aktarmak (geri döndürülebilir, veriler kalır).
+- Kalıcı silmek: OpenCart admin panelinden ürünü silmek.
+
+`products/` altından klasörü silmek, ürünü OpenCart'tan kaldırmaz.
+
+---
+
+## 16. Hata raporlama
+
+Hatalar her zaman insan tarafından okunabilir olmalıdır. Bir üründeki tüm
+metadata sorunları tek seferde, hangi dosyada olduğu belirtilerek raporlanır.
+Bir ürünün hatası diğerlerini durdurmaz. Bilgilendirici notlar (örneğin
+kategori oluşturma) hata değil, uyarı olarak gösterilir.
+
+Örnek:
+
+```
 Missing field: price
+```
 
-instead of
+yerine:
 
+```
 Database error.
+```
+
+asla gösterilmez.
 
 ---
 
-# 13. Performance
+## 17. Performans
 
-Correctness is more important than speed.
-
-The project is expected to manage hundreds of products rather than tens of thousands.
-
-Readable code is preferred over optimization.
+Doğruluk hızdan önce gelir. Ürün sayısının binlerle değil, yüzlerle ifade
+edilmesi beklenir. Okunabilirlik mikro-optimizasyona tercih edilir.
 
 ---
 
-# 14. Future Features
+## 18. Gelecek fikirler
 
-Possible future improvements
-
-Automatic galleries
-
-Tabbed product pages
-
-Version history
-
-Multi-language support
-
-Automatic image optimization
-
-Static site export
-
-These are not part of Version 0.1.
-
----
-
-# 15. Version 0.1 Scope
-
-Version 0.1 only includes
-
-Scanner
-
-Product Parser
-
-Markdown Renderer
-
-Product Importer
-
-Image Import
-
-Download Import
-
-Basic OpenCart integration
-
-Nothing else.
-
-The project should remain as small as possible.
+Olası ileri geliştirmeler: sekmeli görsel galerileri için ışık kutusu
+(lightbox), çok dillilik, SEO iyileştirmeleri, statik site dışa aktarımı.
+Bunlar güncel kapsam dışıdır; durum için `docs/ROADMAP.md`'ye bakınız.
