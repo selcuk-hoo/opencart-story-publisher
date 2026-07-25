@@ -1,6 +1,5 @@
 ---
 name: Epoksi Kolye Kalıbı
-model: KLP-002
 price: 99
 category: Kalıplar
 image: kapak.jpg

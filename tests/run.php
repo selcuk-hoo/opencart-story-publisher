@@ -115,6 +115,15 @@ $product = $parser->parse($dir);
 check('unknown field is a warning, not an error',
     count($product->warnings) === 1 && str_contains($product->warnings[0], 'colour'));
 
+$dir = makeProduct($tmp, 'klp-001', "---\nname: Beton Kalıbı\nprice: 5\n---\nBody");
+$product = $parser->parse($dir);
+check('model is optional', $product->warnings === []);
+check('model defaults to the folder name', $product->meta('model') === 'klp-001');
+
+$dir = makeProduct($tmp, 'explicit', "---\nname: X\nmodel: ABC-9\nprice: 5\n---\nBody");
+$product = $parser->parse($dir);
+check('an explicit model is kept', $product->meta('model') === 'ABC-9');
+
 $dir = makeProduct($tmp, 'quoted', "---\nname: \"Quoted Name\"\nmodel: Q1\nprice: 5\n---\nBody");
 $product = $parser->parse($dir);
 check('quotes around a value are stripped', $product->meta('name') === 'Quoted Name');

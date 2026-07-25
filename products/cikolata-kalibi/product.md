@@ -1,6 +1,5 @@
 ---
 name: Çikolata Kalıbı
-model: KLP-003
 price: 79
 category: Kalıplar
 image: kapak.jpg

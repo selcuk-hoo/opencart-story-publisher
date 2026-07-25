@@ -1,6 +1,5 @@
 ---
 name: Baharatlık
-model: BHR-001
 price: 89
 category: 3D Modeller
 image: kapak.jpg

@@ -20,6 +20,9 @@ Daha fazla belge:
 
 Her ürün tek bir klasördür:
 
+Klasör adı, aynı zamanda ürünün **kodudur**. Açıklayıcı bir ad ver
+(örneğin `servo-yatagi`); hem ürünün URL'i hem de kodu bu olur:
+
 ```
 products/
     servo-yatagi/
@@ -40,7 +43,6 @@ hikâyeyi okuyucunun dilinde yazabilirsin:
 ```markdown
 ---
 name: Servo Yatağı
-model: SRV-001
 price: 149
 category: 3D Modeller
 image: kapak.jpg
@@ -57,9 +59,13 @@ status: enabled
 ![](stok-braket.jpg)
 ```
 
-- `name`, `model` ve `price` zorunludur. `model` aynı zamanda ürünü
-  tanımlar: aynı modeli tekrar içe aktarmak yeni bir kopya oluşturmaz,
-  mevcut ürünü **günceller**.
+- `name` ve `price` zorunludur.
+- `model` ürünün benzersiz kodudur ve aynı zamanda ürünü tanımlar: aynı
+  modeli tekrar içe aktarmak kopya oluşturmaz, mevcut ürünü **günceller**.
+  `model` yazmazsan **klasör adı** kod olarak kullanılır. Yani el ile kod
+  uydurmana gerek yok; açıklayıcı bir klasör adı (`servo-yatagi`) hem URL
+  hem kod olur. (Belirli bir kod biçimi istersen `model:` alanını yine de
+  elle yazabilirsin.)
 - `category` ürünün kategorisidir. Kategori OpenCart'ta varsa ürün ona
   bağlanır; **yoksa içe aktarıcı onu otomatik oluşturur** (üst düzey bir
   kategori olarak). Yani yeni bir kategori için OpenCart'a girmene gerek yok;
@@ -164,7 +170,8 @@ sunucuda hallolur.
 
 1. `products/` klasörünün içinde, ürün için yeni bir klasör aç. Klasör adı
    **İngilizce harf, rakam ve tire** olsun (Türkçe karakter veya boşluk yok).
-   Örnek: `kablo-tutucu`.
+   Örnek: `kablo-tutucu`. Bu ad hem ürünün adresi (URL) hem de kodu olur;
+   ayrıca `model` yazmana gerek kalmaz.
 2. O klasörün içinde `product.md` adında bir dosya oluştur. İçine mevcut bir
    ürünü (örneğin `products/servo-yatagi/product.md`) kopyalayıp üstünden
    gidebilirsin. Başlıktaki alanları doldur:
@@ -172,7 +179,6 @@ sunucuda hallolur.
    ```markdown
    ---
    name: Kablo Tutucu
-   model: KBL-001
    price: 49
    category: 3D Modeller
    image: kapak.jpg

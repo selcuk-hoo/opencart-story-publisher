@@ -97,8 +97,9 @@ php import.php <klasor>   Tek bir ürünü içe aktarır
 - `collectErrors()`: **tüm** metadata sorunlarını toplar (zorunlu alanlar,
   sayısal olmayan `price`, geçersiz `status`) ve tek seferde raporlar.
 - `collectWarnings()`: bilinmeyen alanları uyarı olarak toplar (ölümcül değil).
-- Zorunlu alanlar: `name`, `model`, `price`. Bilinen alanlar: `name`, `model`,
-  `price`, `category`, `image`, `status`, `summary`.
+- Zorunlu alanlar: `name`, `price`. `model` opsiyoneldir; boşsa klasör adına
+  (slug) düşer. Bilinen alanlar: `name`, `model`, `price`, `category`,
+  `image`, `status`, `summary`.
 
 ### Product
 

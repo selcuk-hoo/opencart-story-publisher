@@ -1,6 +1,5 @@
 ---
 name: Çok Fonksiyonlu Kutu
-model: KTU-001
 price: 119
 category: 3D Modeller
 image: kapak.jpg

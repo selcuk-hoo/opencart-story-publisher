@@ -1,6 +1,5 @@
 ---
 name: Beton Saksı Kalıbı
-model: KLP-001
 price: 129
 category: Kalıplar
 image: kapak.jpg

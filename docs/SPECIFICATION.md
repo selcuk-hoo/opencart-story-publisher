@@ -67,7 +67,6 @@ Her ürün tam olarak bir Markdown belgesi içerir. İki bölümden oluşur:
 ```markdown
 ---
 name: Servo Yatağı
-model: SRV-001
 price: 149
 category: 3D Modeller
 image: kapak.jpg
@@ -91,7 +90,7 @@ status: enabled
 | Alan | Zorunlu | Açıklama |
 |---|---|---|
 | `name` | Evet | Ürün adı |
-| `model` | Evet | Benzersiz tanımlayıcı; tekrar içe aktarma bu alana göre günceller |
+| `model` | Hayır | Benzersiz tanımlayıcı; tekrar içe aktarma bu alana göre günceller. Yazılmazsa **klasör adı** kullanılır |
 | `price` | Evet | Sayı olmalıdır |
 | `category` | Hayır | Ürün kategorisi; yoksa otomatik oluşturulur (bkz. 11) |
 | `image` | Hayır | Kapak görseli; `images/` içinde bir dosya olmalı |

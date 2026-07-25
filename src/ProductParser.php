@@ -10,8 +10,14 @@
  */
 class ProductParser
 {
-    /** Metadata fields that every product must provide. */
-    private const REQUIRED_FIELDS = ['name', 'model', 'price'];
+    /**
+     * Metadata fields that every product must provide.
+     *
+     * "model" is not here on purpose: when it is missing it defaults to the
+     * folder name, so the author can name a folder "klp-001" instead of
+     * inventing a code by hand.
+     */
+    private const REQUIRED_FIELDS = ['name', 'price'];
 
     /** Front matter keys we understand (docs/SPECIFICATION.md, section 6). */
     private const KNOWN_FIELDS = ['name', 'model', 'price', 'category', 'image', 'status', 'summary'];
@@ -33,6 +39,12 @@ class ProductParser
         $errors = $this->collectErrors($meta);
         if ($errors) {
             throw new ImportException($this->formatErrors($slug, $errors));
+        }
+
+        // The model is the product's unique id. When the author does not set
+        // one, the folder name is used (it is already unique and stable).
+        if (!isset($meta['model']) || $meta['model'] === '') {
+            $meta['model'] = $slug;
         }
 
         $product = new Product();

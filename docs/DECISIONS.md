@@ -131,3 +131,21 @@ karışmaz.
 
 **Reddedilen alternatifler:** İlk hatada durmak (yazar için yavaş gidiş-geliş);
 bir loglama çerçevesi (küçük bir içe aktarıcı için fazla).
+
+---
+
+## Karar 008 — `model` opsiyonel; boşsa klasör adı
+
+**Karar:** `model` alanını opsiyonel yap; yazılmazsa klasör adını (slug)
+benzersiz kod olarak kullan.
+
+**Gerekçe:** `SRV-001` gibi kodları elle uydurmak pratik değildi. Klasör adı
+zaten benzersiz ve kararlıdır, dolayısıyla iyi bir varsayılandır.
+
+**Nasıl:** `ProductParser`, `model` boşsa `meta['model']`'i klasör adına
+eşitler. Açıklayıcı bir klasör adı (`servo-yatagi`) hem URL slug'ı hem de ürün
+kodu olur. Belirli bir kod biçimi gerekiyorsa `model:` yine elle yazılabilir.
+
+**Reddedilen alternatifler:** Kodu "kategori + otomatik sıra numarası" olarak
+üretmek (sıra numarası kararlı olmadığından tekrar içe aktarmada duplicate
+riski taşır ve idempotency'yi bozar).

@@ -1,6 +1,5 @@
 ---
 name: Servo Yatağı
-model: SRV-001
 price: 149
 category: 3D Modeller
 image: kapak.jpg
