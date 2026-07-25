@@ -93,10 +93,10 @@ class Publisher
         // Steps 2 & 3: read and validate.
         $product = $this->parser->parse($dir);
 
-        // Step 4: Markdown to HTML, with image URLs rewritten to their
-        // public OpenCart location.
+        // Step 4: Markdown to HTML. Each "# " heading becomes a tab, and the
+        // inline image URLs are rewritten to their public OpenCart location.
         $imageUrls = $this->imageUrlMap($product);
-        $html = $this->renderer->render($product->markdown, $imageUrls);
+        $html = $this->renderer->renderTabs($product->markdown, $imageUrls, $product->slug);
 
         // Step 5: copy images into OpenCart.
         $this->copyImages($product);

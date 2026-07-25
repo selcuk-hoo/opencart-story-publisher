@@ -125,6 +125,27 @@ check('rewrites image src to the public URL',
 $html = $renderer->render("![](unknown.jpg)", ['prototype.jpg' => 'x']);
 check('leaves unknown image src untouched', str_contains($html, 'src="unknown.jpg"'));
 
+// --- MarkdownRenderer: tabs --------------------------------------------
+echo "MarkdownRenderer (tabs)\n";
+
+$story = "# Problem\n\nIt flexed.\n\n# Dream\n\nSolid.\n\n# Sharing\n\nHere it is.";
+$html = $renderer->renderTabs($story, [], 'servo-mount');
+check('builds a tab list', str_contains($html, 'nav nav-tabs'));
+check('one tab per heading', substr_count($html, 'data-bs-toggle="tab"') === 3);
+check('heading text becomes the tab label', str_contains($html, '>Problem</a>'));
+check('the heading line is not repeated in the body', !str_contains($html, '<h1>Problem</h1>'));
+check('first tab is active', str_contains($html, 'nav-link active'));
+check('ids are prefixed with the slug', str_contains($html, 'id="servo-mount-tab-0"'));
+check('section body is rendered', str_contains($html, '<p>It flexed.</p>'));
+
+$html = $renderer->renderTabs("Just a paragraph, no headings.", []);
+check('falls back to plain render without headings', !str_contains($html, 'nav-tabs'));
+
+$html = $renderer->renderTabs("![](prototype.jpg)\n\n# Problem\n\nText.",
+    ['prototype.jpg' => 'image/catalog/story/x/prototype.jpg'], 'x');
+check('preamble before the first heading is kept',
+    str_contains($html, 'src="image/catalog/story/x/prototype.jpg"'));
+
 // --- Result -------------------------------------------------------------
 echo "\n{$tests} checks, {$failures} failed.\n";
 

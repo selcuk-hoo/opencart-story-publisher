@@ -14,7 +14,7 @@
 
 ## v0.2
 
-- [ ] Story tabs
+- [x] Story tabs (each "# " heading becomes a tab)
 - [ ] Automatic galleries
 - [ ] Better error reporting
 
