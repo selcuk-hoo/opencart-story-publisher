@@ -91,3 +91,27 @@ Rejected Alternatives
   (breaks the "never edit templates" rule)
 - Auto-generating the summary from the first paragraph
   (would duplicate that paragraph on the page; an explicit field is clearer)
+
+### Decision 005
+
+Create a category automatically when it does not exist.
+
+Reason
+
+Version 0.1 only linked to existing categories, so the author had to open
+OpenCart and add a category by hand before importing. That breaks the
+"only touch Markdown" workflow.
+
+How
+
+When a product names a category that is not found, the importer creates it
+as a top-level category (findCategoryIdByName / createCategory) and prints a
+short note. A misspelled category therefore creates a new one, so the note
+makes that visible.
+
+Rejected Alternatives
+
+- Keeping the "category must already exist" rule
+  (forces the author out of Markdown and into the admin)
+- Guessing/fuzzy-matching near category names
+  (surprising; exact names are predictable)

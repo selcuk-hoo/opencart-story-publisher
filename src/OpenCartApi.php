@@ -183,14 +183,8 @@ class OpenCartApi
         );
     }
 
-    /**
-     * Assign the product to a category, found by its name.
-     *
-     * Returns false when no category with that name exists. Creating
-     * categories is out of scope for Version 0.1, so the caller decides
-     * how to report it.
-     */
-    public function linkCategoryByName(int $productId, string $categoryName): bool
+    /** Find a category by its name, or null when it does not exist. */
+    public function findCategoryIdByName(string $categoryName): ?int
     {
         $name = $this->escape($categoryName);
         $result = $this->query(
@@ -198,12 +192,72 @@ class OpenCartApi
              WHERE name = '{$name}' AND language_id = {$this->languageId} LIMIT 1"
         );
         $row = $result->fetch_assoc();
-        if (!$row) {
-            return false;
-        }
 
-        $categoryId = (int) $row['category_id'];
+        return $row ? (int) $row['category_id'] : null;
+    }
 
+    /**
+     * Create a top-level category and return its new category_id.
+     *
+     * Only the columns needed for the category to appear in the store are
+     * set; everything else keeps its OpenCart default.
+     */
+    public function createCategory(string $categoryName): int
+    {
+        $name = $this->escape($categoryName);
+
+        // `column` is a reserved word, so it stays quoted.
+        $this->query(
+            "INSERT INTO `{$this->table('category')}` SET
+                image = '',
+                parent_id = 0,
+                top = 1,
+                `column` = 1,
+                sort_order = 0,
+                status = 1,
+                date_added = NOW(),
+                date_modified = NOW()"
+        );
+        $categoryId = (int) $this->db->insert_id;
+
+        $this->query(
+            "INSERT INTO `{$this->table('category_description')}` SET
+                category_id = {$categoryId},
+                language_id = {$this->languageId},
+                name = '{$name}',
+                description = '',
+                meta_title = '{$name}',
+                meta_description = '',
+                meta_keyword = ''"
+        );
+
+        $this->query(
+            "INSERT INTO `{$this->table('category_to_store')}` SET
+                category_id = {$categoryId}, store_id = {$this->storeId}"
+        );
+
+        // A top-level category has a single path row pointing at itself.
+        $this->query(
+            "INSERT INTO `{$this->table('category_path')}` SET
+                category_id = {$categoryId}, path_id = {$categoryId}, level = 0"
+        );
+
+        $keyword = $this->escape($this->slug($categoryName));
+        $this->query(
+            "INSERT INTO `{$this->table('seo_url')}` SET
+                store_id = {$this->storeId},
+                language_id = {$this->languageId},
+                `key` = 'category_id',
+                `value` = '{$categoryId}',
+                keyword = '{$keyword}'"
+        );
+
+        return $categoryId;
+    }
+
+    /** Attach a product to a category, replacing any previous assignment. */
+    public function linkProductToCategory(int $productId, int $categoryId): void
+    {
         $this->query(
             "DELETE FROM `{$this->table('product_to_category')}`
              WHERE product_id = {$productId}"
@@ -212,8 +266,20 @@ class OpenCartApi
             "INSERT INTO `{$this->table('product_to_category')}` SET
                 product_id = {$productId}, category_id = {$categoryId}"
         );
+    }
 
-        return true;
+    /** Turn a name into a URL-friendly keyword (e.g. "3D Modeller" -> "3d-modeller"). */
+    private function slug(string $text): string
+    {
+        $map = [
+            'ç' => 'c', 'ğ' => 'g', 'ı' => 'i', 'ö' => 'o', 'ş' => 's', 'ü' => 'u',
+            'Ç' => 'c', 'Ğ' => 'g', 'İ' => 'i', 'Ö' => 'o', 'Ş' => 's', 'Ü' => 'u',
+        ];
+        $text = strtr($text, $map);
+        $text = mb_strtolower($text, 'UTF-8');
+        $text = preg_replace('/[^a-z0-9]+/u', '-', $text);
+
+        return trim($text, '-');
     }
 
     /** Give the product a clean URL keyword (its slug). */

@@ -54,8 +54,11 @@ status: enabled
 - `name`, `model` ve `price` zorunludur. `model` aynı zamanda ürünü
   tanımlar: aynı modeli tekrar içe aktarmak yeni bir kopya oluşturmaz,
   mevcut ürünü **günceller**.
-- `category` OpenCart'ta önceden var olmalıdır (Sürüm 0.1 kategori
-  oluşturmaz).
+- `category` ürünün kategorisidir. Kategori OpenCart'ta varsa ürün ona
+  bağlanır; **yoksa içe aktarıcı onu otomatik oluşturur** (üst düzey bir
+  kategori olarak). Yani yeni bir kategori için OpenCart'a girmene gerek yok;
+  sadece `category:` alanına yazman yeterli. Yazımına dikkat et — yanlış
+  yazarsan yanlış adda yeni bir kategori oluşur.
 - `image` ana ürün görselidir ve `images/` içinde bir dosya olmalıdır.
   OpenCart bu kapağı ürün sayfasının üstünde otomatik gösterir; hikâyenin
   içinde `![](kapak.jpg)` ile tekrar etmene gerek yok.

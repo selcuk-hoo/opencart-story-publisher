@@ -141,11 +141,15 @@ class Publisher
 
             $category = $product->meta('category');
             if ($category !== '') {
-                $linked = $this->api->linkCategoryByName($productId, $category);
-                if (!$linked) {
-                    fwrite(STDERR, "Warning: category '{$category}' not found for '{$product->slug}'. " .
-                        "Create it in OpenCart, then import again.\n");
+                $categoryId = $this->api->findCategoryIdByName($category);
+                if ($categoryId === null) {
+                    // The category does not exist yet, so create it. This keeps
+                    // the author in Markdown: no need to open OpenCart to add a
+                    // category first.
+                    $categoryId = $this->api->createCategory($category);
+                    fwrite(STDERR, "Note: created category '{$category}'.\n");
                 }
+                $this->api->linkProductToCategory($productId, $categoryId);
             }
 
             $this->api->commit();
