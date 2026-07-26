@@ -89,6 +89,33 @@ rm -rf /var/www/html/opencart/image/cache/*
 
 ---
 
+## SEO URL'leri (güzel adresler)
+
+İçe aktarıcı, SEO tarafını hallediyor: her ürüne (`product_id`) ve otomatik
+oluşturulan kategoriye (`path`) benzersiz bir SEO anahtarı yazar ve aynı
+anahtarın eski/artık sahiplerini temizler. Yani veritabanı tarafı hazırdır.
+
+Ama "Use SEO URLs = Yes" yapınca güzel adreslerin çalışması için **sunucu**
+tarafında üç şey gerekir:
+
+1. OpenCart kökünde bir `.htaccess` (yoksa `.htaccess.txt`'ten kopyala).
+2. Apache `mod_rewrite` açık: `sudo a2enmod rewrite && sudo systemctl restart apache2`.
+3. **Apache'nin `.htaccess`'i okumasına izin vermesi:** ilgili `<Directory>`
+   bloğunda `AllowOverride All` (Ubuntu varsayılanı `None`'dır ve `.htaccess`'i
+   tamamen yok sayar). Genellikle `/etc/apache2/apache2.conf` içinde.
+4. Alt klasör kurulumunda `.htaccess`'te `RewriteBase /opencart/` satırı açık
+   ve doğru olmalı.
+
+Teşhis ipucu: güzel URL **Apache'nin** 404'ünü veriyorsa ("Server at localhost
+Port 80"), istek OpenCart'a hiç ulaşmıyordur → `.htaccess` okunmuyor →
+`AllowOverride` veya `RewriteBase`. OpenCart'ın **kendi** "not found" sayfası
+geliyorsa istek OpenCart'a ulaşmış, sorun veri/dil tarafındadır.
+
+SEO URL'leri isteğe bağlıdır; kapalıyken (`No`) mağaza `index.php?route=...`
+adresleriyle sorunsuz çalışır.
+
+---
+
 ## Dil ve mağaza
 
 `config.php`'deki `OPENCART_LANGUAGE_ID`, mağazanın aktif diliyle **aynı**
@@ -128,6 +155,7 @@ OpenCart çekirdeğindeki dosyaları düzenleme; güncellemede üzerine yazılı
 | `imagedestroy() is deprecated` uyarıları | PHP 8.5 + OpenCart çekirdeği. Display Errors'ı kapat (yukarı bkz.). |
 | Ürün mağazada hiç görünmüyor | `status: disabled`, yanlış `language_id`, `product_to_store` eksik ya da önbellek. |
 | `Database error` | OpenCart 4 şemasında bir sütun farkı olabilir. `OpenCartApi.php`'deki ilgili sorguya bakın; hatayı olduğu gibi kaydedin. |
+| SEO URL açıkken güzel adres **Apache 404** veriyor | `.htaccess` okunmuyor: `AllowOverride All` değil ya da alt klasörde `RewriteBase` yanlış. Yukarıdaki "SEO URL'leri" bölümüne bakın. |
 
 ---
 
