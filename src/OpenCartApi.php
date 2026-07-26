@@ -242,7 +242,9 @@ class OpenCartApi
                 category_id = {$categoryId}, path_id = {$categoryId}, level = 0"
         );
 
-        $this->writeSeoUrl('category_id', $categoryId, $categoryName);
+        // OpenCart 4 resolves category URLs by the "path" key, not
+        // "category_id". For a top-level category the path is its own id.
+        $this->writeSeoUrl('path', $categoryId, $categoryName);
 
         return $categoryId;
     }
