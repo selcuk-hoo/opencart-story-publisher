@@ -149,3 +149,24 @@ kodu olur. Belirli bir kod biçimi gerekiyorsa `model:` yine elle yazılabilir.
 **Reddedilen alternatifler:** Kodu "kategori + otomatik sıra numarası" olarak
 üretmek (sıra numarası kararlı olmadığından tekrar içe aktarmada duplicate
 riski taşır ve idempotency'yi bozar).
+
+---
+
+## Karar 009 — SEO anahtarlarını benzersiz tut
+
+**Karar:** Bir SEO anahtarı (keyword) yazılırken, o anahtarı tutan başka her
+kayıt da silinsin; anahtar her zaman tek bir şeye işaret etsin.
+
+**Gerekçe:** Eski `saveSeoUrl` yalnızca aynı ürünün eski kaydını siliyordu.
+Silinen ürünlerden kalan artık SEO kayıtları ya da aynı anahtarı yazan yeni
+kayıtlar `oc_seo_url`'de çakışma yaratıp storefront'ta "SEO URL açık" iken
+kırık linklere/404'e yol açıyordu.
+
+**Nasıl:** `writeSeoUrl`, hem bu kaydın eski anahtarını hem de aynı anahtarı
+(store+dil bazında) tutan diğer kayıtları silip yeniden yazar. Böylece tekrar
+içe aktarma kendi kendini onarır ve artık kayıtlar temizlenir. Hem ürün hem
+kategori SEO'su bunu kullanır.
+
+**Reddedilen alternatifler:** Anahtar çakışmasını görmezden gelmek (kırık
+linkler); OpenCart'ın SEO şablonunu/çekirdeğini değiştirmek (kuralımıza
+aykırı).

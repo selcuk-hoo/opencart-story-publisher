@@ -242,15 +242,7 @@ class OpenCartApi
                 category_id = {$categoryId}, path_id = {$categoryId}, level = 0"
         );
 
-        $keyword = $this->escape($this->slug($categoryName));
-        $this->query(
-            "INSERT INTO `{$this->table('seo_url')}` SET
-                store_id = {$this->storeId},
-                language_id = {$this->languageId},
-                `key` = 'category_id',
-                `value` = '{$categoryId}',
-                keyword = '{$keyword}'"
-        );
+        $this->writeSeoUrl('category_id', $categoryId, $categoryName);
 
         return $categoryId;
     }
@@ -282,21 +274,44 @@ class OpenCartApi
         return trim($text, '-');
     }
 
-    /** Give the product a clean URL keyword (its slug). */
+    /** Give the product a clean, unique URL keyword (its slug). */
     public function saveSeoUrl(int $productId, string $keyword): void
     {
-        $keyword = $this->escape($keyword);
+        $this->writeSeoUrl('product_id', $productId, $keyword);
+    }
 
+    /**
+     * Write a unique SEO keyword for a product or category.
+     *
+     * The keyword is normalised, then two things are removed first: this
+     * record's previous keyword, and any *other* record already holding this
+     * keyword. So a keyword always points at exactly one thing. This is what
+     * keeps leftover rows from deleted products from breaking the SEO URLs,
+     * and it makes a re-import self-healing.
+     */
+    private function writeSeoUrl(string $key, int $id, string $rawKeyword): void
+    {
+        $keyword = $this->escape($this->slug($rawKeyword));
+        $key = $this->escape($key);
+
+        // This record's old keyword.
         $this->query(
             "DELETE FROM `{$this->table('seo_url')}`
-             WHERE `key` = 'product_id' AND `value` = '{$productId}'"
+             WHERE `key` = '{$key}' AND `value` = '{$id}'"
+        );
+        // Anyone else holding the same keyword in this store and language.
+        $this->query(
+            "DELETE FROM `{$this->table('seo_url')}`
+             WHERE keyword = '{$keyword}'
+               AND store_id = {$this->storeId}
+               AND language_id = {$this->languageId}"
         );
         $this->query(
             "INSERT INTO `{$this->table('seo_url')}` SET
                 store_id = {$this->storeId},
                 language_id = {$this->languageId},
-                `key` = 'product_id',
-                `value` = '{$productId}',
+                `key` = '{$key}',
+                `value` = '{$id}',
                 keyword = '{$keyword}'"
         );
     }
