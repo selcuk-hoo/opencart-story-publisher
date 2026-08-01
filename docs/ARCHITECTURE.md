@@ -40,24 +40,43 @@ hata raporlanır ve sıradaki ürüne geçilir.
 
 ## Dosya düzeni
 
+Aynı içerikten **iki bağımsız çıktı (backend)** üretilir; ikisi de ortak
+`src/` çekirdeğini paylaşır ama birbirine karışmaz:
+
 ```
-import.php            Komut satırı giriş noktası
-config.example.php    config.php olarak kopyalanır ve doldurulur
-config.php            Yerel ayarlar (git'e girmez, şifre içerir)
-src/
+src/                  Ortak çekirdek (her iki backend de kullanır)
     Scanner.php           Ürün klasörlerini bulur
     ProductParser.php     product.md okur, doğrular, uyarı toplar
     Product.php           Basit veri taşıyıcı
     MarkdownRenderer.php  Markdown -> HTML (sekmeler, galeriler, img-fluid)
-    ImageOptimizer.php    Büyük görselleri içe aktarırken küçültür
-    Publisher.php         Akışı yürütür, dosya kopyalar, rapor verir
-    OpenCartApi.php       OpenCart veritabanına dokunan tek yer
-    ImportException.php   İnsan tarafından okunabilir içe aktarma hatası
+    ImageOptimizer.php    Büyük görselleri küçültür
+    ImportException.php   İnsan tarafından okunabilir hata
+    Publisher.php         (OpenCart) akışı yürütür, rapor verir
+    OpenCartApi.php       (OpenCart) veritabanına dokunan tek yer
+
+import.php            OpenCart backend'inin komut satırı girişi
+config.example.php    config.php olarak kopyalanır ve doldurulur
+config.php            Yerel OpenCart ayarları (git'e girmez, şifre içerir)
+
+site/                 Statik site backend'i (OpenCart'tan bağımsız)
+    build.php             Statik siteyi üretir (giriş noktası)
+    SiteBuilder.php       HTML dosyaları yazar (Publisher'ın statik karşılığı)
+    assets/               style.css + tabs.js (çerçevesiz)
+    output/              Üretilen site (git'e girmez)
+
 lib/Parsedown.php     Markdown kütüphanesi (tek dosya, MIT)
-products/             Ürün klasörleri (içerik)
+products/             Ürün klasörleri (ortak içerik)
 tests/run.php         Veritabanı gerektirmeyen kısımların testleri
 docs/                 Bu belgeler
 ```
+
+İki backend, aynı `Scanner → ProductParser → MarkdownRenderer → ImageOptimizer`
+hattını kullanır; yalnızca son adım farklıdır:
+- **OpenCart:** `Publisher → OpenCartApi → veritabanı` (bkz. yukarıdaki akış).
+- **Statik site:** `SiteBuilder → HTML dosyaları` (`site/output/`). Ne PHP
+  sunucusu ne veritabanı gerekir; çıktı her statik barındırıcıya konabilir.
+  İndirilebilir dosyalar bilerek yayınlanmaz (satış modelinde ödeme
+  sağlayıcısı teslim eder).
 
 ---
 

@@ -293,23 +293,38 @@ aktarmayı kendin de çalıştırabilirsin. Linux'tan tek farkı `config.php`:
 
 ## Proje düzeni
 
+Aynı `product.md` klasörlerinden **iki bağımsız çıktı** üretilebilir; ikisi de
+ortak `src/` çekirdeğini kullanır ama birbirine karışmaz:
+
 ```
-import.php            Komut satırı giriş noktası
-config.example.php    config.php olarak kopyala ve doldur
-src/                  İşlem hattı (pipeline)
+src/                  Ortak işlem hattı (her iki çıktı da kullanır)
     Scanner.php           Ürün klasörlerini bulur
     ProductParser.php     product.md dosyasını okur ve doğrular
-    MarkdownRenderer.php  Hikâyeyi HTML'e (ve sekmelere) çevirir
-    ImageOptimizer.php    Büyük görselleri içe aktarırken küçültür
-    Publisher.php         İçe aktarmayı yürütür, dosyaları kopyalar, rapor verir
-    OpenCartApi.php       OpenCart veritabanına dokunan tek sınıf
+    MarkdownRenderer.php  Hikâyeyi HTML'e (sekmeler + galeriler) çevirir
+    ImageOptimizer.php    Büyük görselleri küçültür
     Product.php           Basit veri taşıyıcı
-    ImportException.php   İnsan tarafından okunabilir içe aktarma hataları
+    ImportException.php   İnsan tarafından okunabilir hatalar
+    Publisher.php         (OpenCart) İçe aktarmayı yürütür, rapor verir
+    OpenCartApi.php       (OpenCart) veritabanına dokunan tek sınıf
+
+import.php            OpenCart çıktısı — komut satırı giriş noktası
+config.example.php    OpenCart ayarları (config.php olarak kopyala)
+
+site/                 Statik site çıktısı (OpenCart'tan bağımsız)
+    build.php             Statik siteyi üretir
+    SiteBuilder.php       HTML dosyaları yazar (Publisher'ın statik karşılığı)
+    assets/               style.css + tabs.js (çerçevesiz)
+    output/               Üretilen site (git'e girmez)
+
 lib/Parsedown.php     Markdown kütüphanesi (tek dosya, MIT)
-products/             Senin ürün klasörlerin
+products/             Senin ürün klasörlerin (ortak içerik)
 tests/run.php         Veritabanı dışı kısımların testleri
 docs/                 Belirtim, mimari, yol haritası, kararlar
 ```
+
+**İki çıktı:**
+- OpenCart mağazasına içe aktar: `php import.php`
+- OpenCart'sız statik site üret: `php site/build.php` → `site/output/`
 
 ## Testleri çalıştırma
 
