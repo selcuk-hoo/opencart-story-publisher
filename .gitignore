@@ -1,2 +1,5 @@
 # Local configuration contains the database password.
 config.php
+
+# Generated static site
+output/
