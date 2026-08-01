@@ -24,7 +24,7 @@ Klasör adı, aynı zamanda ürünün **kodudur**. Açıklayıcı bir ad ver
 (örneğin `servo-yatagi`); hem ürünün URL'i hem de kodu bu olur:
 
 ```
-products/
+site/products/
     servo-yatagi/
         product.md
         images/
@@ -117,7 +117,7 @@ php import.php servo-yatagi
 
 İçe aktarıcı her ürün için bir satır ve kısa bir özet yazdırır. Bir ürün
 başarısız olursa; **o üründeki tüm sorunları bir arada** listeler, hangi
-dosyada olduğunu (`products/<klasör>/product.md`) söyler ve kalan ürünlerle
+dosyada olduğunu (`site/products/<klasör>/product.md`) söyler ve kalan ürünlerle
 devam eder. Böylece bir hatayı düzeltip tekrar çalıştırıp bir sonrakini
 bulmak yerine hepsini tek seferde görürsün.
 
@@ -130,7 +130,7 @@ FAIL  bozuk-urun
         2 problems:
           - Missing field: price
           - Invalid status 'belki' (use 'enabled' or 'disabled')
-          Fix in products/bozuk-urun/product.md
+          Fix in site/products/bozuk-urun/product.md
 
 5 created, 1 updated, 1 failed (7 total).
 ```
@@ -168,12 +168,12 @@ sunucuda hallolur.
 
 ### 2. Yeni bir ürün ekleme
 
-1. `products/` klasörünün içinde, ürün için yeni bir klasör aç. Klasör adı
+1. `site/products/` klasörünün içinde, ürün için yeni bir klasör aç. Klasör adı
    **İngilizce harf, rakam ve tire** olsun (Türkçe karakter veya boşluk yok).
    Örnek: `kablo-tutucu`. Bu ad hem ürünün adresi (URL) hem de kodu olur;
    ayrıca `model` yazmana gerek kalmaz.
 2. O klasörün içinde `product.md` adında bir dosya oluştur. İçine mevcut bir
-   ürünü (örneğin `products/servo-yatagi/product.md`) kopyalayıp üstünden
+   ürünü (örneğin `site/products/servo-yatagi/product.md`) kopyalayıp üstünden
    gidebilirsin. Başlıktaki alanları doldur:
 
    ```markdown
@@ -264,7 +264,7 @@ her biri ayrı ayrı gösterilir.
 
 ```
 git pull
-git add products/
+git add site/products/
 git commit -m "Yeni ürün: Kablo Tutucu"
 git push
 ```
@@ -294,8 +294,8 @@ aktarmayı kendin de çalıştırabilirsin. Linux'tan tek farkı `config.php`:
 ## Proje düzeni
 
 Aynı `product.md` içeriğinden **iki tamamen bağımsız çıktı** üretilir. İkisi de
-**yalnızca içeriği** (`products/`) paylaşır; kodları ayrıdır. Bu bilinçli bir
-tercih: pipeline kodu iki yerde tekrar eder ama her tarafın neye ihtiyacı
+**yalnızca içeriği** (`site/products/`) paylaşır; kodları ayrıdır. Bu bilinçli
+bir tercih: pipeline kodu iki yerde tekrar eder ama her tarafın neye ihtiyacı
 olduğu net görünür.
 
 **OpenCart tarafı (kök dizin):**
@@ -309,7 +309,7 @@ src/                  OpenCart tarafının kodu
 lib/Parsedown.php     Markdown kütüphanesi (MIT)
 ```
 
-**Statik site tarafı (`site/` — OpenCart'tan tamamen izole):**
+**Statik site tarafı (`site/` — kendine yeten, izole):**
 ```
 site/
     build.php             Statik siteyi üretir — giriş noktası
@@ -319,23 +319,55 @@ site/
         SiteBuilder                        (HTML yazar)
     lib/Parsedown.php     Kendi Markdown kütüphanesi kopyası
     assets/               style.css + tabs.js (çerçevesiz)
+    products/             Ürün klasörleri (product.md) — içerik burada
     output/               Üretilen site (git'e girmez)
 ```
 
+`site/` klasörü tek başına kopyalanıp çalıştırılabilir: içinde kod, kütüphane,
+görsel varlıklar ve **ürün içeriği** birlikte durur. Dosya sisteminde dışarı
+uzanmaz.
+
 **Ortak:**
 ```
-products/             Ürün klasörleri (product.md — bir kez yaz, iki taraf da kullanır)
-tests/run.php         Kök src/ pipeline'ının testleri
-docs/                 Belirtim, mimari, yol haritası, kararlar
+products/  ->  içerik artık site/products altında. OpenCart tarafı da onu okur
+              (config.php'de PRODUCTS_DIR = .../site/products). Tek kopya, çift yazım yok.
+tests/run.php   Kök src/ pipeline'ının testleri
+docs/           Belirtim, mimari, yol haritası, kararlar
 ```
 
-**İki çıktı:**
+**İki çıktı, tek içerik (`site/products`):**
 - OpenCart mağazasına içe aktar: `php import.php`
 - OpenCart'sız statik site üret: `php site/build.php` → `site/output/`
 
 > Not: Pipeline (Scanner/Parser/Renderer/ImageOptimizer) hem `src/` hem
 > `site/src/` içinde bulunur — kasıtlı tekrar. Bu ortak mantıkta bir değişiklik
 > yaparsan **iki kopyaya da** uygula.
+
+## Statik siteyi çalıştırma (Windows dahil)
+
+`site/` klasörü kendine yeter; OpenCart, MySQL veya sunucu gerektirmez. Yeni bir
+Windows makinesinde:
+
+1. **PHP kur.** <https://windows.php.net/download> adresinden PHP 8.x zip'ini
+   indir, örn. `C:\php`'ye çıkar ve `C:\php`'yi PATH'e ekle.
+   `php.ini-development`'ı `php.ini` yap ve içinde `extension=gd` satırını aç
+   (başındaki `;`'yi sil) — görsel küçültme bunu kullanır. MySQL gerekmez.
+   Kontrol: `php -v`
+2. **Projeyi al.** Git for Windows ile `git clone <depo>` **ya da** sadece
+   `site` klasörünü kopyala.
+3. **Üret.** Bir terminalde (PowerShell/CMD/Git Bash):
+   ```
+   cd site
+   php build.php
+   ```
+4. **Aç.** `site\output\index.html`'i tarayıcıda aç, ya da hızlı bir sunucu:
+   ```
+   php -S localhost:8000 -t output
+   ```
+   sonra <http://localhost:8000>.
+
+`output/` her çalıştırmada yeniden üretilir; barındırmak için (Netlify, GitHub
+Pages, Cloudflare Pages) o klasörün içeriğini yüklersin.
 
 ## Testleri çalıştırma
 

@@ -22,7 +22,7 @@ if (PHP_SAPI !== 'cli') {
 // This folder is fully self-contained: it has its own copy of the pipeline
 // (site/src) and Markdown library (site/lib), so it never reaches into the
 // OpenCart side. Only the product content is shared (write product.md once).
-const PRODUCTS_DIR   = __DIR__ . '/../products'; // shared content folder
+const PRODUCTS_DIR   = __DIR__ . '/products'; // content lives inside site/
 const OUTPUT_DIR     = __DIR__ . '/output';
 const ASSETS_DIR     = __DIR__ . '/assets';
 const SITE_NAME      = '3D Harikalar Diyarı';

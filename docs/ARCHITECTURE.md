@@ -69,7 +69,7 @@ site/
     output/              Üretilen site (git'e girmez)
 
 # Ortak
-products/             Ürün klasörleri (bir kez yazılır)
+products/  -> içerik artık site/products altında (bir kez yazılır)
 tests/run.php         Kök src/ pipeline testleri
 docs/                 Bu belgeler
 ```

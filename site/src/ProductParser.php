@@ -159,7 +159,7 @@ class ProductParser
         $lines = array_map(fn($error) => "  - {$error}", $errors);
 
         return $head . "\n" . implode("\n", $lines) .
-            "\n  Fix in products/{$slug}/product.md";
+            "\n  Fix in site/products/{$slug}/product.md";
     }
 
     /**

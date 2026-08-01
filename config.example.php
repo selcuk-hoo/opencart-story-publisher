@@ -18,7 +18,8 @@ define('DB_PORT', '3306');
 define('DB_PREFIX', 'oc_');
 
 // --- Where your products live ------------------------------------------
-define('PRODUCTS_DIR', __DIR__ . '/products');
+// Product content lives inside site/ (shared, written once).
+define('PRODUCTS_DIR', __DIR__ . '/site/products');
 
 // --- OpenCart file locations -------------------------------------------
 // The OpenCart "image" folder (the one that contains the "catalog" folder).
