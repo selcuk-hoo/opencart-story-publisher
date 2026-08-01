@@ -1,17 +1,15 @@
 <?php
 
 /**
- * Story Publisher - static site builder.
+ * 3D Harikalar Diyarı - static site builder.
  *
- * Generates a self-contained static web site from the product folders, with
- * no OpenCart, database or PHP server needed to run it. This is a parallel
- * output: it does not touch OpenCart in any way.
+ * Generates a self-contained static web site from the product folders. No
+ * database and no PHP server are needed to view the result — just open the
+ * generated output/ or host it on any static host (Netlify, GitHub Pages,
+ * Cloudflare Pages, ...).
  *
  * Usage:
  *   php build.php
- *
- * Then open output/index.html in a browser, or host the output/ folder on
- * any static host (Netlify, GitHub Pages, Cloudflare Pages, ...).
  */
 
 if (PHP_SAPI !== 'cli') {
@@ -19,12 +17,10 @@ if (PHP_SAPI !== 'cli') {
 }
 
 // --- Settings ----------------------------------------------------------
-// This folder is fully self-contained: it has its own copy of the pipeline
-// (site/src) and Markdown library (site/lib), so it never reaches into the
-// OpenCart side. Only the product content is shared (write product.md once).
-const PRODUCTS_DIR   = __DIR__ . '/products'; // content lives inside site/
+const PRODUCTS_DIR   = __DIR__ . '/products';
 const OUTPUT_DIR     = __DIR__ . '/output';
 const ASSETS_DIR     = __DIR__ . '/assets';
+const ABOUT_FILE     = __DIR__ . '/about.md'; // optional "Hakkımızda" page
 const SITE_NAME      = '3D Harikalar Diyarı';
 const SITE_TAGLINE   = 'Tasarımdan baskıya — her parçanın bir hikâyesi var.';
 const CURRENCY       = '₺';
@@ -40,6 +36,8 @@ require __DIR__ . '/src/MarkdownRenderer.php';
 require __DIR__ . '/src/ImageOptimizer.php';
 require __DIR__ . '/src/SiteBuilder.php';
 
+$aboutMarkdown = is_file(ABOUT_FILE) ? (string) file_get_contents(ABOUT_FILE) : '';
+
 try {
     $builder = new SiteBuilder(
         new Scanner(PRODUCTS_DIR),
@@ -50,7 +48,8 @@ try {
         OUTPUT_DIR,
         SITE_NAME,
         SITE_TAGLINE,
-        CURRENCY
+        CURRENCY,
+        $aboutMarkdown
     );
 
     $report = $builder->build();

@@ -1,8 +1,10 @@
 # AI Instructions
 
-This document defines the design philosophy, scope and development rules for this project.
+This document defines the design philosophy, scope and development rules for
+this project.
 
-If there is any conflict between this document and your own assumptions, follow this document.
+If there is any conflict between this document and your own assumptions, follow
+this document.
 
 ---
 
@@ -10,19 +12,20 @@ If there is any conflict between this document and your own assumptions, follow 
 
 Project name:
 
-Story Publisher
+3D Harikalar Diyarı
 
-This project is an OpenCart 4 extension.
+This project is a static site generator.
 
-Its purpose is to publish products from Markdown files.
+Its purpose is to publish products from Markdown files as a static web site.
 
-This is NOT a generic OpenCart extension.
+This is NOT a generic e-commerce platform.
 
 This is NOT a CMS.
 
 This is NOT a blog engine.
 
-The purpose is to create a very simple publishing workflow for engineering and 3D printing projects.
+The purpose is a very simple publishing workflow for engineering and 3D
+printing projects.
 
 ---
 
@@ -52,9 +55,8 @@ The editor should never need to
 
 - edit HTML
 - edit PHP
-- edit SQL
 - edit CSS
-- edit OpenCart templates
+- edit templates
 
 The only thing the editor should modify is
 
@@ -84,8 +86,6 @@ Never edit generated HTML.
 
 Never ask the user to edit HTML.
 
-Never require manual database modifications.
-
 Everything should come from Markdown.
 
 ---
@@ -98,7 +98,7 @@ Example
 
 products/
 
-    servo-mount/
+    servo-yatagi/
 
         product.md
 
@@ -139,9 +139,9 @@ Example
 
 ![](prototype.jpg)
 
-The importer automatically resolves image locations.
+The builder automatically resolves image locations.
 
-The user should never write OpenCart paths.
+The user should never write site paths.
 
 ---
 
@@ -161,22 +161,25 @@ PDF
 
 ZIP
 
-The importer automatically publishes them.
+The downloadable files are not published on the static site. In a
+"buy to download" model the file is delivered by the payment provider after
+purchase. The product page only lists what the buyer will receive.
 
 ---
 
-# OpenCart Responsibilities
+# Scope
 
-OpenCart is responsible only for
+The site builder is responsible only for
 
-- customers
-- checkout
-- orders
-- payment
-- downloads
-- inventory
+- reading Markdown
+- turning it into a static web site (catalog, product pages, story tabs,
+  galleries)
+- optimizing images
 
-Everything related to content comes from Markdown.
+Payment and secure file delivery are delegated to a hosted payment provider.
+
+There are no customer accounts, no order history, and no server-side commerce
+code.
 
 ---
 
@@ -203,8 +206,6 @@ Future ideas are NOT current requirements.
 
 Do not implement speculative features.
 
-Do not create extension points for features that do not yet exist.
-
 Implement only today's requirements.
 
 ---
@@ -213,7 +214,8 @@ Implement only today's requirements.
 
 The project should remain easy to understand.
 
-Someone unfamiliar with OpenCart should still understand the project after reading the directory tree.
+Someone unfamiliar with the project should still understand it after reading the
+directory tree.
 
 ---
 
@@ -233,7 +235,7 @@ Refactor only when necessary.
 
 # Error Handling
 
-All import errors should produce human-readable messages.
+All errors should produce human-readable messages.
 
 Never expose raw PHP errors to end users.
 
@@ -313,11 +315,11 @@ Copy STL files
 
 ↓
 
-Press Import
+Run the build (or git push)
 
 ↓
 
-OpenCart is updated automatically
+The static site is updated automatically
 
 Nothing more.
 

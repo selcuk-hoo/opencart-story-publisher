@@ -3,12 +3,12 @@
 /**
  * One product, read from a single product folder.
  *
- * This is a plain data holder. It does not talk to OpenCart and it does
- * not touch the database. The Publisher is responsible for that.
+ * This is a plain data holder. It does no rendering and writes nothing;
+ * the SiteBuilder turns it into HTML pages.
  */
 class Product
 {
-    /** Folder name, e.g. "servo-mount". Also used as the URL keyword. */
+    /** Folder name, e.g. "servo-yatagi". Also used as the URL slug. */
     public string $slug;
 
     /** Absolute path to the product folder. */

@@ -1,12 +1,11 @@
 <?php
 
 /**
- * Small test runner for the parts that do not need a database.
+ * Small test runner for the pipeline.
  *
  * Run with:  php tests/run.php
  *
- * OpenCartApi and the database side of Publisher are not covered here,
- * because they need a real OpenCart installation to run against.
+ * Covers Scanner, ProductParser, MarkdownRenderer and ImageOptimizer.
  */
 
 require __DIR__ . '/../lib/Parsedown.php';

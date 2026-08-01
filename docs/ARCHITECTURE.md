@@ -1,18 +1,17 @@
 # Mimari
 
 Bu belge, projenin bakımını yapacak kişi içindir. Kodun nasıl parçalara
-ayrıldığını, verinin nasıl aktığını ve her sınıfın neyden sorumlu olduğunu
-anlatır.
+ayrıldığını ve verinin nasıl aktığını anlatır.
 
-Temel ilke değişmedi: **Markdown tek doğruluk kaynağıdır.** Editör yalnızca
-`product.md` yazar ve klasöre dosya koyar; gerisini içe aktarıcı yapar.
+Temel ilke: **Markdown tek doğruluk kaynağıdır.** Editör yalnızca `product.md`
+yazar ve klasöre dosya koyar; gerisini üretici yapar.
 
 ---
 
 ## Genel akış (pipeline)
 
 ```
-products/
+products/                 (içerik: her ürün bir klasör)
     │
     ▼
 Scanner            product.md içeren klasörleri bulur
@@ -24,240 +23,119 @@ ProductParser      product.md -> Product (metadata + markdown + dosya listeleri)
 MarkdownRenderer   markdown -> sekmeli HTML (galeriler + duyarlı görseller)
     │
     ▼
-Publisher          görselleri (ImageOptimizer ile) ve dosyaları kopyalar,
-    │              açıklamayı kurar, akışı yönetir, rapor üretir
-    ▼
-OpenCartApi        OpenCart veritabanına yazan tek sınıf
+SiteBuilder        görselleri (ImageOptimizer ile) kopyalar, sayfaları yazar
     │
     ▼
-OpenCart veritabanı
+output/                   (statik HTML sitesi — her yere konabilir)
 ```
 
-Her ürün kendi başına içe aktarılır. Bir ürünün hatası diğerlerini durdurmaz;
-hata raporlanır ve sıradaki ürüne geçilir.
+Her ürün kendi başına işlenir. Bir ürünün hatası diğerlerini durdurmaz; hata
+raporlanır ve sıradaki ürüne geçilir.
 
 ---
 
 ## Dosya düzeni
 
-Aynı içerikten **iki tamamen bağımsız backend** üretilir. İkisi de yalnızca
-**içeriği** (`products/`) paylaşır; kodları ayrıdır. Pipeline kodu iki yerde
-tekrar eder — bilinçli bir izolasyon tercihi; her tarafın neye ihtiyacı olduğu
-net görünür.
-
 ```
-# OpenCart tarafı (kök)
-import.php            OpenCart backend'inin komut satırı girişi
-config.example.php    config.php olarak kopyalanır ve doldurulur
-config.php            Yerel OpenCart ayarları (git'e girmez, şifre içerir)
+build.php             Giriş noktası — siteyi üretir
+about.md              İsteğe bağlı "Hakkımızda" içeriği (varsa sayfa+menü oluşur)
 src/
-    Scanner, ProductParser, Product, MarkdownRenderer,
-    ImageOptimizer, ImportException    (pipeline)
-    Publisher                          (akışı yürütür, rapor verir)
-    OpenCartApi                        (veritabanına dokunan tek yer)
-lib/Parsedown.php     Markdown kütüphanesi (MIT)
-
-# Statik site tarafı (OpenCart'a hiç uzanmaz)
-site/
-    build.php             Statik siteyi üretir (giriş noktası)
-    src/
-        Scanner, ProductParser, Product, MarkdownRenderer,
-        ImageOptimizer, ImportException   (pipeline kopyası)
-        SiteBuilder                       (HTML dosyaları yazar)
-    lib/Parsedown.php     Kendi Markdown kütüphanesi kopyası
-    assets/               style.css + tabs.js (çerçevesiz)
-    output/              Üretilen site (git'e girmez)
-
-# Ortak
-products/  -> içerik artık site/products altında (bir kez yazılır)
-tests/run.php         Kök src/ pipeline testleri
+    Scanner.php           Ürün klasörlerini bulur
+    ProductParser.php     product.md okur, doğrular, uyarı toplar
+    Product.php           Basit veri taşıyıcı
+    MarkdownRenderer.php  Markdown -> HTML (sekmeler, galeriler, img-fluid)
+    ImageOptimizer.php    Büyük görselleri küçültür
+    SiteBuilder.php       HTML sayfalarını yazar
+    ImportException.php   İnsan tarafından okunabilir hata
+lib/Parsedown.php     Markdown kütüphanesi (tek dosya, MIT)
+assets/
+    style.css             Sitenin stili (çerçevesiz)
+    tabs.js               Sekme geçişi + kategori filtresi
+products/             Ürün klasörleri (içerik)
+output/               Üretilen site (git'e girmez)
+tests/run.php         Testler
 docs/                 Bu belgeler
 ```
 
-İki backend aynı `Scanner → ProductParser → MarkdownRenderer → ImageOptimizer`
-mantığını kullanır (her biri kendi kopyasıyla); yalnızca son adım farklıdır:
-- **OpenCart:** `Publisher → OpenCartApi → veritabanı`.
-- **Statik site:** `SiteBuilder → HTML dosyaları` (`site/output/`). Ne PHP
-  sunucusu ne veritabanı gerekir; çıktı her statik barındırıcıya konabilir.
-  İndirilebilir dosyalar bilerek yayınlanmaz (satış modelinde ödeme
-  sağlayıcısı teslim eder).
-
-> Bakım notu: pipeline hem `src/` hem `site/src/` içinde bulunur. Ortak
-> mantıkta bir değişiklik yaparsan iki kopyaya da uygula.
+Çıktının hiçbir dış isteği yoktur: `assets/` içindeki küçük CSS ve JS çıktıya
+kopyalanır, görseller sayfaların yanına gömülür. Site çevrimdışı çalışır ve
+herhangi bir statik barındırıcıya konabilir.
 
 ---
 
 ## Sınıflar ve sorumlulukları
 
-### import.php (giriş noktası)
-
-- Yalnızca komut satırından çalışır.
-- `config.php` yoksa açıklayıcı bir hata verip çıkar.
+### build.php (giriş noktası)
 - `lib/Parsedown.php` ve `src/*` dosyalarını `require` eder (otomatik yükleyici
-  yok — proje küçük olduğu için bilinçli).
-- `MAX_IMAGE_WIDTH` ve `IMAGE_QUALITY` tanımlı değilse varsayılan verir; böylece
-  eski `config.php` dosyaları değişmeden çalışmaya devam eder.
-- `Publisher`'ı bağımlılıklarıyla kurar ve `importAll($onlySlug)` çağırır.
-- Raporu yazdırır: her ürün için `OK`/`FAIL`, altında `note:` satırları ve sonda
-  `created / updated / failed` sayımı. Hata varsa çıkış kodu 1.
-
-Kullanım:
-```
-php import.php            Tüm ürünleri içe aktarır
-php import.php <klasor>   Tek bir ürünü içe aktarır
-```
+  yok — proje küçük).
+- Ayarları (site adı, slogan, para birimi, `MAX_IMAGE_WIDTH`) sabit olarak tutar.
+- Varsa `about.md`'yi okuyup `SiteBuilder`'a verir.
+- `SiteBuilder`'ı kurar, `build()` çağırır, raporu yazdırır.
 
 ### Scanner
-
-- `findProducts()`: `PRODUCTS_DIR` altındaki **doğrudan** alt klasörlerden
-  içinde `product.md` olanları bulur ve sıralı mutlak yol listesi döndürür.
-- Ürün klasörü yoksa açıklayıcı `ImportException` fırlatır.
+- `findProducts()`: `PRODUCTS_DIR` altındaki, içinde `product.md` olan doğrudan
+  alt klasörleri bulur; sıralı mutlak yol listesi döndürür.
 
 ### ProductParser
-
-- `parse($dir)`: `product.md`'yi okur, `Product` nesnesi üretir.
-- `splitFrontMatter()`: UTF-8 BOM'u temizler, CRLF'yi LF'ye çevirir (Windows
-  uyumu), baştaki `---` ile bir sonraki `---` arasındaki `anahtar: değer`
-  satırlarını ayrıştırır. Değerin etrafındaki tırnaklar atılır. Front matter
-  yoksa/kapanmıyorsa ya da bozuk satır varsa hata verir.
-- `collectErrors()`: **tüm** metadata sorunlarını toplar (zorunlu alanlar,
-  sayısal olmayan `price`, geçersiz `status`) ve tek seferde raporlar.
-- `collectWarnings()`: bilinmeyen alanları uyarı olarak toplar (ölümcül değil).
-- Zorunlu alanlar: `name`, `price`. `model` opsiyoneldir; boşsa klasör adına
-  (slug) düşer. Bilinen alanlar: `name`, `model`, `price`, `category`,
-  `image`, `status`, `summary`.
+- `parse($dir)`: `product.md`'yi okur, `Product` üretir.
+- Front matter'ı elle ayrıştırır (UTF-8 BOM temizler, CRLF -> LF, `anahtar:
+  değer`). YAML kütüphanesi kullanmaz.
+- Tüm metadata hatalarını toplayıp tek seferde raporlar; bilinmeyen alanları
+  uyarı olarak toplar. Zorunlu: `name`, `price`. `model` boşsa klasör adına düşer.
 
 ### Product
-
 - Sade veri taşıyıcı: `slug`, `dir`, `meta[]`, `markdown`, `images[]`,
-  `downloads[]`, `warnings[]`. OpenCart'ı ya da veritabanını bilmez.
+  `downloads[]`, `warnings[]`.
 
 ### MarkdownRenderer
-
-- Parsedown'ı sarar (`setSafeMode(false)` — içerik yazarın kendisinindir).
-- `render($md, $imageUrls)`: Parsedown -> görsel URL'lerini yaz -> galerileri
-  kur -> `img-fluid` ekle.
-- `renderTabs($md, $imageUrls, $idPrefix)`: her üst düzey `# ` başlığını bir
-  Bootstrap 5 sekmesine çevirir. Başlıktan önceki metin (preamble) sekmelerin
-  üstünde kalır. Hiç `# ` başlığı yoksa düz `render()`'a döner.
-- `buildGalleries()`: arka arkaya gelen 2+ görseli Bootstrap `row`/`col`
-  ızgarasına sarar. İki görsel `col-md-6`, üç+ görsel `col-md-4`, telefonda hep
-  `col-6`. Tek görsel dokunulmaz; araya metin girerse birleşmez.
-- `makeImagesResponsive()`: sınıfı olmayan `<img>`'lere `img-fluid` ekler.
-
-Bu HTML doğrudan OpenCart **ürün açıklaması** alanına yazılır. Sekmeler ve
-galeriler kendi kendine yeten Bootstrap 5 işaretlemesidir; OpenCart 4 zaten
-Bootstrap 5 yüklediği için **hiçbir tema/şablon düzenlenmez**.
+- Parsedown'ı sarar.
+- `renderTabs()`: her üst düzey `# ` başlığını bir sekmeye çevirir; başlıktan
+  önceki metin (preamble) sekmelerin üstünde kalır.
+- `buildGalleries()`: arka arkaya gelen 2+ görseli bir ızgaraya sarar.
+- `render()`: düz makale (Hakkımızda sayfası bunu kullanır).
+- Görsel `<img src>` yollarını yayınlanan konuma çevirir; `img-fluid` ekler.
+- Ürettiği işaretleme çerçevesizdir; `assets/style.css` ve `tabs.js` onu
+  biçimlendirir ve çalıştırır.
 
 ### ImageOptimizer
+- `copy($from,$to)`: görsel `MAX_IMAGE_WIDTH`'tan genişse oran korunarak
+  küçültülüp yeniden kaydedilir; değilse olduğu gibi kopyalanır. JPEG/PNG/WebP.
+  GD yoksa ya da yeterince küçükse ham kopya. Kaynak dosyalara dokunmaz.
 
-- `copy($from, $to)`: görsel `MAX_IMAGE_WIDTH`'tan genişse en-boy oranını
-  koruyarak küçültür ve yeniden kaydeder; değilse dosyayı olduğu gibi kopyalar.
-- JPEG, PNG, WebP'yi yeniden boyutlandırır (PNG/WebP saydamlığı korunur).
-  Tanınmayan tür, GD yokluğu ya da yeterince küçük görsel -> ham kopya.
-- Kaynak (`products/...`) dosyalarına asla dokunmaz; yalnızca OpenCart'a giden
-  kopya optimize edilir.
+### SiteBuilder
+Akışı yönetir ve HTML yazar:
+1. Çıktıyı temizler, `assets/`'i kopyalar.
+2. Her ürün için: parse et, görselleri `output/<slug>/images/` altına kopyala,
+   `renderTabs` ile hikâyeyi üret, ürün sayfasını yaz.
+3. Ana sayfayı yaz: masthead, sol kategori menüsü (filtre) ve ürün ızgarası.
+4. Varsa Hakkımızda sayfasını yaz ve menüye ekle.
 
-### Publisher
-
-Akışı yönetir (docs/SPECIFICATION.md, "İçe aktarma süreci" adımları):
-
-1. `Scanner` ile klasörleri bulur.
-2. `ProductParser` ile okur/doğrular (uyarıları alır).
-3. `MarkdownRenderer::renderTabs` ile HTML üretir; en üste `summary` paragrafını
-   ekler (liste önizlemesi ve kısa giriş için).
-4. `copyImages`: görselleri `ImageOptimizer` ile
-   `OPENCART_IMAGE_DIR/catalog/story/<slug>/` altına kopyalar; `image:` alanının
-   `images/` içinde bulunduğunu doğrular.
-5. `copyDownloads`: indirilebilir dosyaları `OPENCART_DOWNLOAD_DIR` altına
-   `<slug>-<dosya>` sabit adıyla kopyalar (tekrar içe aktarma orijinali ezer,
-   yetim dosya kalmaz).
-6. Bir işlem (transaction) içinde `OpenCartApi`'yi çağırır: ürünü modele göre
-   bul/oluştur/güncelle, açıklamayı yaz, mağazaya bağla, SEO URL, downloads,
-   kategori (yoksa oluştur) ve bağla. Hata olursa `rollback`.
-7. Sonucu (`created`/`updated`) ve uyarıları rapora döndürür.
-
-Görsel URL'leri: `imageUrlMap()`, her görsel adını
-`OPENCART_IMAGE_URL + 'catalog/story/<slug>/<dosya>'` genel URL'sine eşler;
-`renderTabs` bu eşlemeyle `<img src>`'leri düzeltir. Ana ürün görseli
-(`mainImagePath()`) ise OpenCart'ın sakladığı biçimde (`image/` klasörüne göreli)
-`catalog/story/<slug>/<dosya>` olarak kaydedilir.
-
-### OpenCartApi
-
-OpenCart hakkında bilgi sahibi **tek** sınıftır; geri kalan kod düz PHP kalır.
-`mysqli` ile bağlanır (`DB_*` ayarları, `utf8mb4`). Tüm tablolar `DB_PREFIX`
-öneki ile kullanılır (örn. `oc_product`).
-
-Başlıca metotlar:
-- `begin/commit/rollback` — ürün başına işlem.
-- `findProductIdByModel`, `createProduct`, `updateProduct`, `saveDescription`,
-  `linkStore`, `saveSeoUrl`.
-- `findCategoryIdByName`, `createCategory`, `linkProductToCategory`.
-- `replaceDownloads`.
-- `slug()` — kategori SEO anahtarı üretir; Türkçe karakterleri çevirir
-  (`Kalıplar -> kaliplar`).
-
-Yazılan OpenCart tabloları:
-- Ürün: `product`, `product_description`, `product_to_store`,
-  `product_to_category`, `seo_url` (`key = 'product_id'`).
-- Kategori (otomatik oluşturulursa): `category`, `category_description`,
-  `category_to_store`, `category_path`, `seo_url` (`key = 'category_id'`).
-- İndirmeler: `download`, `download_description`, `product_to_download`.
-
-`createProduct`, OpenCart 4 şemasında `NOT NULL` olup varsayılanı olmayan
-sütunları (sku, upc, ean, ...) açıkça boş string yapar; böylece MySQL katı
-(strict) modda da çalışır. Ürünler dijital kabul edilir: `subtract = 0`,
-yüksek `quantity`.
+İndirilebilir dosyalar bilerek yayınlanmaz: satış modelinde dosyayı ödeme
+sağlayıcısı ödemeden sonra teslim eder; sayfa yalnızca "bu pakette ne var"ı
+listeler.
 
 ---
 
-## Diskte ve veritabanında ne nereye gider
+## Diskte ne nereye gider
 
 | Kaynak | Hedef |
 |---|---|
-| `products/<slug>/images/<dosya>` | `OPENCART_IMAGE_DIR/catalog/story/<slug>/<dosya>` (optimize) |
-| `products/<slug>/downloads/<dosya>` | `OPENCART_DOWNLOAD_DIR/<slug>-<dosya>` |
-| `product.md` metadata + hikâye | `oc_product` + `oc_product_description` (ve ilgili bağlantı tabloları) |
-
----
-
-## Yapılandırma (config.php)
-
-| Sabit | Açıklama |
-|---|---|
-| `DB_HOSTNAME/USERNAME/PASSWORD/DATABASE/PORT/PREFIX` | OpenCart veritabanı (OpenCart config.php'sinden kopyalanır) |
-| `PRODUCTS_DIR` | Ürün klasörlerinin yeri |
-| `OPENCART_IMAGE_DIR` | OpenCart `image/` klasörü |
-| `OPENCART_IMAGE_URL` | Görsellerin genel URL öneki (alt klasör kurulumunda kök-göreli olmalı, örn. `/opencart/image/`) |
-| `OPENCART_DOWNLOAD_DIR` | OpenCart indirme depolama klasörü |
-| `OPENCART_LANGUAGE_ID` / `OPENCART_STORE_ID` | Ürünlerin oluşturulduğu dil ve mağaza |
-| `MAX_IMAGE_WIDTH` / `IMAGE_QUALITY` | Görsel optimizasyonu (opsiyonel; varsayılan 600 / 82) |
+| `products/<slug>/images/<dosya>` | `output/<slug>/images/<dosya>` (optimize) |
+| `product.md` (metadata + hikâye) | `output/<slug>/index.html` |
+| `about.md` | `output/hakkimizda/index.html` |
+| (tüm ürünler) | `output/index.html` (katalog) |
 
 ---
 
 ## Testler
 
-`php tests/run.php` şu veritabanı gerektirmeyen kısımları doğrular:
-- **Scanner**: doğru klasörleri bulma, sıralama, eksik klasör hatası.
-- **ProductParser**: alan okuma, tüm hataları birden raporlama, uyarılar,
-  tırnak temizleme, front matter kontrolleri.
-- **MarkdownRenderer**: başlık/kalın, görsel URL yeniden yazma, `img-fluid`,
-  sekmeler, galeriler.
-- **ImageOptimizer**: büyük görseli küçültme, oranı koruma, küçük görsele
-  dokunmama, görsel olmayan dosyayı kopyalama.
-
-`OpenCartApi` ve `Publisher`'ın veritabanı tarafı gerçek bir OpenCart kurulumu
-gerektirdiği için bu testlere dahil değildir; değişiklik sonrası gerçek bir
-kurulumda denenmelidir.
+`php tests/run.php` şunları doğrular: Scanner (klasör bulma), ProductParser
+(alanlar, toplu hata, uyarılar), MarkdownRenderer (başlık/kalın, görsel URL,
+img-fluid, sekmeler, galeriler), ImageOptimizer (küçültme, oran, ham kopya).
 
 ---
 
 ## Değişiklik yaparken
-
-- Önce mevcut mimariyi anla, sadeliği koru (talimatlar.md).
-- OpenCart'a özgü her şey `OpenCartApi` içinde kalsın; diğer sınıflar düz PHP
-  olarak dursun.
-- Mimari değişirse **önce bu belgeyi** güncelle. Güncel olmayan doküman bir
-  hatadır.
+- Sadeliği koru (talimatlar.md).
+- Mimari değişirse önce bu belgeyi güncelle.
 - Önemli bir karar verdiğinde `docs/DECISIONS.md`'ye kısa bir kayıt ekle.

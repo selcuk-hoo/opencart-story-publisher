@@ -9,8 +9,8 @@
  * so the importer does it: images wider than a limit are scaled down and
  * re-encoded. Images that are already small enough are copied as they are.
  *
- * The source files in products/ are never changed. Only the copy that goes
- * into OpenCart is optimized.
+ * The source files in products/ are never changed. Only the published copy
+ * is optimized.
  */
 class ImageOptimizer
 {

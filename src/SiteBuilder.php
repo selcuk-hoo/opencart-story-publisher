@@ -3,14 +3,13 @@
 /**
  * Builds a static web site from the product folders.
  *
- * This is the static counterpart of Publisher: instead of writing to an
- * OpenCart database, it writes plain HTML files into an output directory.
- * The rest of the pipeline is reused unchanged — Scanner, ProductParser,
- * MarkdownRenderer (tabs + galleries) and ImageOptimizer.
+ * It writes plain HTML files into an output directory, reusing the pipeline —
+ * Scanner, ProductParser, MarkdownRenderer (tabs + galleries) and
+ * ImageOptimizer.
  *
  * The site has no framework and no external requests: a small local CSS file
- * and a tiny tab script (assets/) are copied into the output, so it works
- * offline and can be hosted anywhere (Netlify, GitHub Pages, ...).
+ * and a tiny script (assets/) are copied into the output, so it works offline
+ * and can be hosted anywhere (Netlify, GitHub Pages, Cloudflare Pages, ...).
  *
  * Downloadable files are intentionally NOT published: in a "buy to download"
  * model the file is delivered by the payment provider after purchase, so the
@@ -28,6 +27,7 @@ class SiteBuilder
     private string $siteName;
     private string $tagline;
     private string $currency;
+    private string $aboutMarkdown;
 
     public function __construct(
         Scanner $scanner,
@@ -38,7 +38,8 @@ class SiteBuilder
         string $outputDir,
         string $siteName,
         string $tagline,
-        string $currency
+        string $currency,
+        string $aboutMarkdown = ''
     ) {
         $this->scanner = $scanner;
         $this->parser = $parser;
@@ -49,6 +50,13 @@ class SiteBuilder
         $this->siteName = $siteName;
         $this->tagline = $tagline;
         $this->currency = $currency;
+        $this->aboutMarkdown = trim($aboutMarkdown);
+    }
+
+    /** Whether an About page will be built (and shown in the menu). */
+    private function hasAbout(): bool
+    {
+        return $this->aboutMarkdown !== '';
     }
 
     /**
@@ -78,7 +86,25 @@ class SiteBuilder
 
         $this->writeIndexPage($products);
 
+        if ($this->hasAbout()) {
+            $this->writeAboutPage();
+        }
+
         return $report;
+    }
+
+    private function writeAboutPage(): void
+    {
+        $article = $this->renderer->render($this->aboutMarkdown);
+
+        $content = '<div class="container page-wrap">'
+            . '<nav class="crumb"><a href="../index.html">&larr; Tüm Ürünler</a></nav>'
+            . '<article class="prose"><h1>Hakkımızda</h1>' . $article . '</article>'
+            . '</div>';
+
+        $html = $this->layout('Hakkımızda', $content, '../');
+        $this->makeDir($this->outputDir . '/hakkimizda');
+        file_put_contents($this->outputDir . '/hakkimizda/index.html', $html);
     }
 
     // --- Pages -----------------------------------------------------------
@@ -151,7 +177,7 @@ HTML;
             $groups[$category][] = $product;
         }
 
-        $navItems = '<li><a class="active" data-filter="__all__">Tümü'
+        $navItems = '<li><a class="active" data-filter="__all__">Tüm Ürünler'
             . '<span class="count">' . count($products) . '</span></a></li>';
         $sections = '';
         foreach ($groups as $category => $items) {
@@ -167,11 +193,18 @@ HTML;
                 . '<div class="product-grid">' . $cards . '</div></section>';
         }
 
+        $pagesNav = '';
+        if ($this->hasAbout()) {
+            $pagesNav = '<h4>Sayfalar</h4><ul><li>'
+                . '<a href="hakkimizda/index.html">Hakkımızda</a></li></ul>';
+        }
+
         $content = '<section class="masthead"><div class="container">'
             . '<h1>' . $this->esc($this->siteName) . '</h1>'
             . '<p class="tagline">' . $this->esc($this->tagline) . '</p></div></section>'
             . '<div class="container"><div class="catalog-layout">'
-            . '<aside class="cat-nav"><h4>Kategoriler</h4><ul>' . $navItems . '</ul></aside>'
+            . '<aside class="cat-nav"><h4>Kategoriler</h4><ul>' . $navItems . '</ul>'
+            . $pagesNav . '</aside>'
             . '<div class="catalog-main">' . $sections . '</div>'
             . '</div></div>';
 
@@ -208,6 +241,9 @@ HTML;
         $siteName = $this->esc($this->siteName);
         $title = $this->esc($title);
         $year = date('Y');
+        $aboutLink = $this->hasAbout()
+            ? ' · <a href="' . $base . 'hakkimizda/index.html">Hakkımızda</a>'
+            : '';
 
         return <<<HTML
 <!doctype html>
@@ -223,7 +259,7 @@ HTML;
 <main>
 {$content}
 </main>
-<footer class="site-footer"><div class="container">{$siteName} · {$year}</div></footer>
+<footer class="site-footer"><div class="container">{$siteName} · {$year}{$aboutLink}</div></footer>
 <script src="{$base}assets/tabs.js"></script>
 </body>
 </html>

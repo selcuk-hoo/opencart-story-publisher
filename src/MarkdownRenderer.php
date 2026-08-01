@@ -7,9 +7,9 @@
  * (a single file in lib/). See talimatlar.md, "External Libraries".
  *
  * Image handling: the author writes plain references such as ![](hero.jpg).
- * The importer copies the images into OpenCart, so here we only rewrite the
- * <img src="..."> paths to the public URL. The author never types an
- * OpenCart path (docs/SPECIFICATION.md, section 8).
+ * The builder copies the images next to the page, so here we only rewrite the
+ * <img src="..."> paths to their published location. The author never types a
+ * site path (docs/SPECIFICATION.md).
  */
 class MarkdownRenderer
 {
@@ -71,7 +71,7 @@ class MarkdownRenderer
         return $html;
     }
 
-    /** Build a Bootstrap grid from all the images found in an HTML chunk. */
+    /** Build a responsive grid from all the images found in an HTML chunk. */
     private function galleryFrom(string $chunk): string
     {
         preg_match_all('#<img\b[^>]*>#i', $chunk, $matches);
@@ -90,9 +90,9 @@ class MarkdownRenderer
     }
 
     /**
-     * Add the Bootstrap "img-fluid" class to images that do not already have
-     * a class. OpenCart 4 ships Bootstrap 5, so this keeps images inside their
-     * container instead of overflowing the page.
+     * Add the "img-fluid" class to images that do not already have a class,
+     * so the site's stylesheet keeps them inside their container instead of
+     * overflowing the page.
      */
     private function makeImagesResponsive(string $html): string
     {
@@ -107,9 +107,8 @@ class MarkdownRenderer
      * Render the story as tabs, one tab per top-level "# " heading.
      *
      * The heading text becomes the tab label and everything under it (until
-     * the next "# ") becomes the tab body. The markup is self-contained
-     * Bootstrap 5, which OpenCart 4 already loads, so no template is touched
-     * (talimatlar.md, "Source of Truth").
+     * the next "# ") becomes the tab body. The markup uses simple, framework-
+     * free classes that the site's own CSS + tabs.js style and drive.
      *
      * If the story has no "# " headings, it falls back to a plain render.
      *
