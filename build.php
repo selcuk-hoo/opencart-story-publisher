@@ -22,8 +22,8 @@ if (PHP_SAPI !== 'cli') {
 const PRODUCTS_DIR   = __DIR__ . '/products';
 const OUTPUT_DIR     = __DIR__ . '/output';
 const ASSETS_DIR     = __DIR__ . '/assets';
-const SITE_NAME      = 'Story Publisher';
-const SITE_TAGLINE   = 'Her ürün bir hikâye.';
+const SITE_NAME      = '3D Harikalar Diyarı';
+const SITE_TAGLINE   = 'Tasarımdan baskıya — her parçanın bir hikâyesi var.';
 const CURRENCY       = '₺';
 const MAX_IMAGE_WIDTH = 1200; // static pages control their own layout
 const IMAGE_QUALITY   = 82;

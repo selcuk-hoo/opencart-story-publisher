@@ -115,6 +115,7 @@ class SiteBuilder
         }
 
         $content = <<<HTML
+<div class="container product-wrap">
 <nav class="crumb"><a href="../index.html">&larr; Tüm ürünler</a></nav>
 <article class="product">
   <div class="product-hero">
@@ -130,6 +131,7 @@ class SiteBuilder
   </div>
   <section class="product-story">{$story}</section>
 </article>
+</div>
 HTML;
 
         $html = $this->layout($product->meta('name'), $content, '../');
@@ -149,18 +151,29 @@ HTML;
             $groups[$category][] = $product;
         }
 
+        $navItems = '<li><a class="active" data-filter="__all__">Tümü'
+            . '<span class="count">' . count($products) . '</span></a></li>';
         $sections = '';
         foreach ($groups as $category => $items) {
+            $cat = $this->esc($category);
+            $navItems .= '<li><a data-filter="' . $cat . '">' . $cat
+                . '<span class="count">' . count($items) . '</span></a></li>';
+
             $cards = '';
             foreach ($items as $product) {
                 $cards .= $this->card($product);
             }
-            $sections .= '<section class="category"><h2>' . $this->esc($category) . '</h2>'
+            $sections .= '<section class="category" data-category="' . $cat . '"><h2>' . $cat . '</h2>'
                 . '<div class="product-grid">' . $cards . '</div></section>';
         }
 
-        $content = '<section class="hero"><h1>' . $this->esc($this->siteName) . '</h1>'
-            . '<p>' . $this->esc($this->tagline) . '</p></section>' . $sections;
+        $content = '<section class="masthead"><div class="container">'
+            . '<h1>' . $this->esc($this->siteName) . '</h1>'
+            . '<p class="tagline">' . $this->esc($this->tagline) . '</p></div></section>'
+            . '<div class="container"><div class="catalog-layout">'
+            . '<aside class="cat-nav"><h4>Kategoriler</h4><ul>' . $navItems . '</ul></aside>'
+            . '<div class="catalog-main">' . $sections . '</div>'
+            . '</div></div>';
 
         $html = $this->layout('Ürünler', $content, '');
         file_put_contents($this->outputDir . '/index.html', $html);
@@ -173,7 +186,7 @@ HTML;
         $summary = $this->esc($product->meta('summary'));
         $cover = $product->meta('image');
         $img = $cover !== ''
-            ? '<img src="' . $slug . '/images/' . $this->esc($cover) . '" alt="' . $name . '">'
+            ? '<div class="thumb"><img src="' . $slug . '/images/' . $this->esc($cover) . '" alt="' . $name . '"></div>'
             : '';
 
         return <<<HTML
@@ -207,7 +220,7 @@ HTML;
 </head>
 <body>
 <header class="site-header"><div class="container"><a class="brand" href="{$base}index.html">{$siteName}</a></div></header>
-<main class="container">
+<main>
 {$content}
 </main>
 <footer class="site-footer"><div class="container">{$siteName} · {$year}</div></footer>
