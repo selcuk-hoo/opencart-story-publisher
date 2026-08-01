@@ -1,330 +1,155 @@
-# AI Instructions
+# 3D Harikalar Diyarı — Talimatlar ve Devir Notu
 
-This document defines the design philosophy, scope and development rules for
-this project.
-
-If there is any conflict between this document and your own assumptions, follow
-this document.
-
----
-
-# Project
-
-Project name:
-
-3D Harikalar Diyarı
-
-This project is a static site generator.
-
-Its purpose is to publish products from Markdown files as a static web site.
-
-This is NOT a generic e-commerce platform.
-
-This is NOT a CMS.
-
-This is NOT a blog engine.
-
-The purpose is a very simple publishing workflow for engineering and 3D
-printing projects.
+> Bu dosya, projeyi devralan herkesin (yeni bir oturumdaki yapay zeka dahil)
+> **önce okuması gereken** belgedir. Amacı: projeyi, geçmişini, mevcut
+> durumunu, kurallarını ve sıradaki işleri baştan anlatmak zorunda kalmadan
+> aktarmak. Bir çelişki olursa bu belge geçerlidir.
 
 ---
 
-# Main Idea
+## 0. Hızlı özet
 
-Every product is a story.
-
-Customers should understand
-
-- the original problem
-- the design process
-- the iterations
-- the final solution
-- why the design exists
-
-The story is the primary content.
-
-The sale is secondary.
+Bu proje, **Markdown'dan statik bir mağaza sitesi üreten** küçük bir PHP
+aracıdır. Sahibi Türkçe konuşuyor; **yanıtlar Türkçe olmalı.** Site adı
+**3D Harikalar Diyarı**. Her ürün bir hikâyedir; satış ikincildir. OpenCart
+bir zamanlar vardı, **tamamen kaldırıldı — geri getirilmeyecek.**
 
 ---
 
-# Target User
+## 1. Önemli geçmiş (mutlaka oku)
 
-The primary content editor is NOT a programmer.
-
-The editor should never need to
-
-- edit HTML
-- edit PHP
-- edit CSS
-- edit templates
-
-The only thing the editor should modify is
-
-product.md
-
-and optionally add images or downloadable files.
+- Proje başta bir **OpenCart 4 eklentisiydi** (Markdown'dan OpenCart'a ürün
+  içe aktarma). Adı hâlâ depoda `opencart-story-publisher` olabilir.
+- Uzun bir yolculuğun sonunda **OpenCart tamamen kaldırıldı** ve proje
+  **bağımsız bir statik site üreticisine** dönüştü.
+- **Neden:** İhtiyaç "hikâyeleri yayınlamak + basit, güvenli satış"tı. Sipariş
+  paneli, müşteri hesabı, stok gerekmiyordu. OpenCart'ın karmaşıklığının çoğu
+  (ücretli dil paketleri, .htaccess/SEO, önbellek, veritabanı göçleri, sürüm
+  uyumsuzlukları) bu ihtiyaçla ilgisizdi ve çok zaman kaybettirdi.
+- Detaylı gerekçe: `docs/DECISIONS.md` → **Karar 8**.
+- **KURAL: OpenCart'ı geri getirme.** Veritabanı, PHP sunucusu, admin paneli
+  ekleme. İhtiyaç doğarsa bile önce sahibine sor.
 
 ---
 
-# Philosophy
+## 2. Bu proje bugün ne yapıyor
 
-The workflow should feel like writing an article.
+- Her ürün `products/<klasör>/` altında yaşar: bir `product.md`, bir `images/`
+  ve bir `downloads/` klasörü.
+- `product.md`: üstte metadata (front matter), altta Markdown hikâye. Her üst
+  düzey `#` başlığı ürün sayfasında ayrı bir **sekme** olur.
+- `php build.php` çalıştırılınca `output/` altına **tam bir statik site**
+  yazılır: katalog, ürün sayfaları, Hakkımızda. Görseller kopyalanır ve
+  gerekiyorsa küçültülür.
+- Site çerçevesizdir (Bootstrap yok); kendi `assets/style.css` ve `tabs.js`'i
+  vardır. Veritabanı/sunucu gerekmez; `output/` her yere konabilir.
 
-Not like entering records into an ERP system.
-
-The author writes.
-
-The software publishes.
-
----
-
-# Source of Truth
-
-Markdown is always the source of truth.
-
-Never edit generated HTML.
-
-Never ask the user to edit HTML.
-
-Everything should come from Markdown.
+**Pipeline:** `Scanner → ProductParser → MarkdownRenderer (sekmeler+galeriler)
+→ ImageOptimizer → SiteBuilder → output/`. Ayrıntı: `docs/ARCHITECTURE.md`.
 
 ---
 
-# Product Structure
+## 3. Şu an ne var, ne çalışıyor
 
-Each product lives inside its own directory.
-
-Example
-
-products/
-
-    servo-yatagi/
-
-        product.md
-
-        images/
-
-        downloads/
-
-Nothing outside this directory should be necessary to describe the product.
+- 6 **örnek** ürün (placeholder görseller), 2 kategori: "3D Modeller",
+  "Kalıplar". Bunlar gerçek ürünlerle değiştirilecek.
+- Çalışan özellikler: sekmeli hikâyeler, arka arkaya görsellerin otomatik
+  **galeri** olması, **görsel optimizasyonu** (varsayılan max 1200px),
+  **sol menüde kategori filtresi** ("Tüm Ürünler" + kategoriler),
+  **Hakkımızda** sayfası (kök dizindeki `about.md`'den; sil → kaybolur).
+- Testler: `php tests/run.php` (pipeline'ı kapsar).
+- **"Satın Al" butonu yer tutucudur** — ödeme henüz bağlı değil.
 
 ---
 
-# product.md
+## 4. Sıradaki işler (öncelik sırasıyla)
 
-Every product contains exactly one Markdown document.
+1. **İçerik** — sahibi/kardeşi gerçek ürünleri, görselleri ve `about.md`'yi
+   dolduracak. (Şu an burada.)
+2. **Gerçek ödeme** — "Satın Al"ı bağlamak. Alıcılar önce **Türkiye'de**;
+   bu yüzden **iyzico veya PayTR** + ödeme sonrası **güvenli dosya teslimi**
+   (küçük bir sunucusuz fonksiyon). İleride yurt dışı için Stripe/Lemon
+   Squeezy eklenebilir. İndirilebilir dosyalar statik sitede yayınlanmaz;
+   ödeme sağlayıcısı teslim eder.
+3. **Otomatik yayın** — `git push` → CI (`php build.php`) → statik host'a
+   (GitHub Pages / Netlify / Cloudflare Pages) dağıtım.
 
-It contains
-
-- metadata
-- story
-- images
-- technical information
-
-The goal is to edit only one file.
-
-Never split the story into multiple Markdown files unless explicitly requested.
-
----
-
-# Images
-
-Images belong inside
-
-images/
-
-Markdown references images normally.
-
-Example
-
-![](prototype.jpg)
-
-The builder automatically resolves image locations.
-
-The user should never write site paths.
+Tam liste: `docs/ROADMAP.md`.
 
 ---
 
-# Downloads
+## 5. Çalışma kuralları (yapay zeka için)
 
-Downloads belong inside
-
-downloads/
-
-Examples
-
-STL
-
-STEP
-
-PDF
-
-ZIP
-
-The downloadable files are not published on the static site. In a
-"buy to download" model the file is delivered by the payment provider after
-purchase. The product page only lists what the buyer will receive.
-
----
-
-# Scope
-
-The site builder is responsible only for
-
-- reading Markdown
-- turning it into a static web site (catalog, product pages, story tabs,
-  galleries)
-- optimizing images
-
-Payment and secure file delivery are delegated to a hosted payment provider.
-
-There are no customer accounts, no order history, and no server-side commerce
-code.
+- **Türkçe yanıt ver.**
+- **Basit tut.** Gereksiz soyutlama, mimari, arayüz, DI, factory, erken
+  optimizasyon yok. Okunur kod > akıllı kod.
+- **Over-engineer etme.** Bugünün gereğini yap; spekülatif özellik ekleme.
+- **Mimariyi açık talimat olmadan değiştirme.** Birden çok geçerli çözüm
+  varsa, başlangıç seviyesi bir PHP geliştiricisinin anlayacağını seç.
+- **Küçük commit'ler**, her adımda çalışan yazılım. Büyük yeniden yazımlardan
+  kaçın.
+- **Hatalar insan-okunur olmalı:** hangi ürün, ne, nasıl düzeltilir. Ham PHP
+  hatası gösterme.
+- **Mimari değişince önce dokümanı güncelle** (`docs/` + gerekiyorsa README).
+  Güncelliğini yitirmiş doküman bir hatadır.
+- **Dış bağımlılık** ancak ciddi bir problemi çözüyorsa (tek örnek: Markdown
+  için `lib/Parsedown.php`).
+- Kod yorumları İngilizce (geliştiriciye yönelik); **kullanıcıya dönük her şey
+  Türkçe.**
 
 ---
 
-# Keep It Simple
+## 6. Sahibinin bilinen tercihleri (bu yolculukta öğrenildi)
 
-Always choose the simplest possible implementation.
-
-Avoid
-
-- unnecessary abstraction
-- complicated architecture
-- unnecessary interfaces
-- dependency injection unless needed
-- factory patterns unless necessary
-- premature optimization
-
-Readable code is preferred over clever code.
-
----
-
-# Do Not Over Engineer
-
-Future ideas are NOT current requirements.
-
-Do not implement speculative features.
-
-Implement only today's requirements.
+- **İçerik editörü programcı değil** ve **Windows'ta** çalışacak (sahibinin
+  kardeşi). Onun için her şeyi kolay tut; README'de Windows kılavuzu var.
+- Sahibi Linux'ta test ediyor, kardeşi Windows'ta yönetecek.
+- Tasarım yönü: **soğuk nötrler + tek cesur aksan (erimiş filament turuncusu)**,
+  başlıkta **FDM katman-çizgisi** dokusu. Klişe "AI tasarımı"ndan kaçın
+  (asit-yeşili, mor gradyan, her şey ortalı, Inter/Space Grotesk).
+- Metinlerde ton: sıcak, **esprili**, maker ruhu (bkz. `about.md`).
+- Kategoriler çoğaldığında sol menü/filtre mantığı korunmalı (100 üründe bile
+  kategori kaybolmasın).
+- Ürün **kodu = klasör adı** (model yazmak zorunlu değil). Açıklayıcı klasör
+  adları tercih ediliyor (`servo-yatagi`), kod-numara (`MDL-001`) değil.
 
 ---
 
-# Folder Layout
+## 7. Belgeler nerede
 
-The project should remain easy to understand.
-
-Someone unfamiliar with the project should still understand it after reading the
-directory tree.
-
----
-
-# Development Rules
-
-Small commits.
-
-Small pull requests.
-
-Working software after every milestone.
-
-Avoid large rewrites.
-
-Refactor only when necessary.
+- `README.md` — kullanım + **Windows kılavuzu** (içerik editörü için)
+- `docs/ARCHITECTURE.md` — kodun yapısı ve akışı
+- `docs/SPECIFICATION.md` — ne yaptığının tanımı
+- `docs/MAINTENANCE.md` — kurulum, barındırma, sorun giderme
+- `docs/ROADMAP.md` — sıradaki işler
+- `docs/DECISIONS.md` — mimari kararlar (özellikle **Karar 8: OpenCart'ı
+  bırakma**)
 
 ---
 
-# Error Handling
+## 8. Depo ve dal
 
-All errors should produce human-readable messages.
-
-Never expose raw PHP errors to end users.
-
-Always explain
-
-- which product failed
-- why
-- how to fix it
+- Depo GitHub'da **`3d-harikalar-diyari`** olarak yeniden adlandırıldı (eski:
+  `opencart-story-publisher`). Yerelde klasör adı farklı olabilir; önemli değil.
+- Çalışma dalı: `claude/version-0-1-implementation-9fm0fn`. **Bu ada takılma** —
+  "version-0-1" ve "opencart" geçmiş kalıntısıdır; proje artık statik site.
 
 ---
 
-# Performance
+## 9. Uzun vadeli hedef
 
-Correctness is more important than speed.
+Nihai iş akışı şu olmalı:
 
-The number of products is expected to remain relatively small.
+Obsidian'da hikâye yaz → `product.md` kaydet → görselleri koy → STL'leri koy →
+`php build.php` (veya `git push`) → **statik site otomatik güncellenir.**
 
-Readability is preferred over micro-optimizations.
-
----
-
-# External Libraries
-
-Only introduce external libraries when they solve a significant problem.
-
-Do not introduce dependencies merely to reduce a few lines of code.
-
-Every dependency should have a clear justification.
+Başka hiçbir şey. Kararsız kaldığında, projeyi bu akışa yaklaştıran çözümü seç.
 
 ---
 
-# Documentation
+## 10. Kısaca felsefe
 
-Whenever the architecture changes,
-
-update the documentation first.
-
-Documentation is part of the project.
-
-Outdated documentation is considered a bug.
-
----
-
-# AI Behaviour
-
-When modifying the code,
-
-first understand the current architecture.
-
-Preserve the project's simplicity.
-
-Never redesign the project without explicit instructions.
-
-If there are multiple valid solutions,
-
-choose the one that a beginner PHP developer can understand.
-
----
-
-# Long-Term Goal
-
-The final workflow should be:
-
-Write a story in Obsidian
-
-↓
-
-Save product.md
-
-↓
-
-Copy images
-
-↓
-
-Copy STL files
-
-↓
-
-Run the build (or git push)
-
-↓
-
-The static site is updated automatically
-
-Nothing more.
-
-This is the guiding principle of the project.
-
-Whenever you are uncertain,
-
-choose the solution that moves the project closer to this workflow.
+Markdown tek doğruluk kaynağıdır. **Yazar yazar, yazılım yayınlar.** Ürün bir
+hikâyedir; müşteri parçanın neden var olduğunu anlamalı. Satış ikincildir.
+Editörün dokunduğu tek şey `product.md` (ve görsel/dosya klasörleri) olmalı —
+HTML, CSS, şablon değil.
