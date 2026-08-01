@@ -170,3 +170,28 @@ kategori SEO'su bunu kullanır.
 **Reddedilen alternatifler:** Anahtar çakışmasını görmezden gelmek (kırık
 linkler); OpenCart'ın SEO şablonunu/çekirdeğini değiştirmek (kuralımıza
 aykırı).
+
+---
+
+## Karar 010 — Statik siteyi OpenCart'tan tamamen izole etmek
+
+**Karar:** Statik site backend'ini `site/` altında, kendi pipeline ve Markdown
+kütüphanesi kopyasıyla tamamen bağımsız yap; OpenCart tarafının koduna hiç
+uzanma.
+
+**Gerekçe:** İki backend'in neye ihtiyacı olduğunu net görmek ve statik
+tarafın OpenCart tarafındaki değişikliklerden etkilenmemesini sağlamak
+istendi. Ortak `src/` üzerinden bağ, "hangi kod hangi tarafa ait" ayrımını
+bulanıklaştırıyordu.
+
+**Nasıl:** `site/` kendi `src/` (Scanner, ProductParser, Product,
+MarkdownRenderer, ImageOptimizer, ImportException, SiteBuilder) ve
+`lib/Parsedown.php` kopyasını taşır. Yalnızca içerik (`products/`) paylaşılır;
+çünkü product.md'yi iki kez yazmak istenmez.
+
+**Bedeli (kabul edildi):** Pipeline kodu iki yerde tekrar eder; ortak bir
+değişiklik iki kopyaya da uygulanmalıdır.
+
+**Reddedilen alternatifler:** Ortak `src/` üzerinden paylaşım (izolasyonu ve
+netliği bozuyordu); içeriği de kopyalamak (product.md'lerin iki kez
+yazılmasına yol açardı).

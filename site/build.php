@@ -18,10 +18,11 @@ if (PHP_SAPI !== 'cli') {
     exit("This script must be run from the command line.\n");
 }
 
-// --- Settings (no OpenCart config needed) ------------------------------
-// Products and the shared pipeline live one level up; this folder holds only
-// the static-site backend, kept apart from the OpenCart side.
-const PRODUCTS_DIR   = __DIR__ . '/../products';
+// --- Settings ----------------------------------------------------------
+// This folder is fully self-contained: it has its own copy of the pipeline
+// (site/src) and Markdown library (site/lib), so it never reaches into the
+// OpenCart side. Only the product content is shared (write product.md once).
+const PRODUCTS_DIR   = __DIR__ . '/../products'; // shared content folder
 const OUTPUT_DIR     = __DIR__ . '/output';
 const ASSETS_DIR     = __DIR__ . '/assets';
 const SITE_NAME      = '3D Harikalar Diyarı';
@@ -30,14 +31,14 @@ const CURRENCY       = '₺';
 const MAX_IMAGE_WIDTH = 1200; // static pages control their own layout
 const IMAGE_QUALITY   = 82;
 
-require __DIR__ . '/../lib/Parsedown.php';
-require __DIR__ . '/../src/ImportException.php';
-require __DIR__ . '/../src/Product.php';
-require __DIR__ . '/../src/Scanner.php';
-require __DIR__ . '/../src/ProductParser.php';
-require __DIR__ . '/../src/MarkdownRenderer.php';
-require __DIR__ . '/../src/ImageOptimizer.php';
-require __DIR__ . '/SiteBuilder.php';
+require __DIR__ . '/lib/Parsedown.php';
+require __DIR__ . '/src/ImportException.php';
+require __DIR__ . '/src/Product.php';
+require __DIR__ . '/src/Scanner.php';
+require __DIR__ . '/src/ProductParser.php';
+require __DIR__ . '/src/MarkdownRenderer.php';
+require __DIR__ . '/src/ImageOptimizer.php';
+require __DIR__ . '/src/SiteBuilder.php';
 
 try {
     $builder = new SiteBuilder(

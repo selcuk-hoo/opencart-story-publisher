@@ -293,38 +293,49 @@ aktarmayı kendin de çalıştırabilirsin. Linux'tan tek farkı `config.php`:
 
 ## Proje düzeni
 
-Aynı `product.md` klasörlerinden **iki bağımsız çıktı** üretilebilir; ikisi de
-ortak `src/` çekirdeğini kullanır ama birbirine karışmaz:
+Aynı `product.md` içeriğinden **iki tamamen bağımsız çıktı** üretilir. İkisi de
+**yalnızca içeriği** (`products/`) paylaşır; kodları ayrıdır. Bu bilinçli bir
+tercih: pipeline kodu iki yerde tekrar eder ama her tarafın neye ihtiyacı
+olduğu net görünür.
 
+**OpenCart tarafı (kök dizin):**
 ```
-src/                  Ortak işlem hattı (her iki çıktı da kullanır)
-    Scanner.php           Ürün klasörlerini bulur
-    ProductParser.php     product.md dosyasını okur ve doğrular
-    MarkdownRenderer.php  Hikâyeyi HTML'e (sekmeler + galeriler) çevirir
-    ImageOptimizer.php    Büyük görselleri küçültür
-    Product.php           Basit veri taşıyıcı
-    ImportException.php   İnsan tarafından okunabilir hatalar
-    Publisher.php         (OpenCart) İçe aktarmayı yürütür, rapor verir
-    OpenCartApi.php       (OpenCart) veritabanına dokunan tek sınıf
-
-import.php            OpenCart çıktısı — komut satırı giriş noktası
+import.php            OpenCart'a içe aktarma — giriş noktası
 config.example.php    OpenCart ayarları (config.php olarak kopyala)
+src/                  OpenCart tarafının kodu
+    Scanner, ProductParser, Product, MarkdownRenderer,
+    ImageOptimizer, ImportException   (pipeline)
+    Publisher, OpenCartApi            (OpenCart'a özel)
+lib/Parsedown.php     Markdown kütüphanesi (MIT)
+```
 
-site/                 Statik site çıktısı (OpenCart'tan bağımsız)
-    build.php             Statik siteyi üretir
-    SiteBuilder.php       HTML dosyaları yazar (Publisher'ın statik karşılığı)
+**Statik site tarafı (`site/` — OpenCart'tan tamamen izole):**
+```
+site/
+    build.php             Statik siteyi üretir — giriş noktası
+    src/                  Statik tarafın KENDİ kod kopyası
+        Scanner, ProductParser, Product, MarkdownRenderer,
+        ImageOptimizer, ImportException   (pipeline kopyası)
+        SiteBuilder                        (HTML yazar)
+    lib/Parsedown.php     Kendi Markdown kütüphanesi kopyası
     assets/               style.css + tabs.js (çerçevesiz)
     output/               Üretilen site (git'e girmez)
+```
 
-lib/Parsedown.php     Markdown kütüphanesi (tek dosya, MIT)
-products/             Senin ürün klasörlerin (ortak içerik)
-tests/run.php         Veritabanı dışı kısımların testleri
+**Ortak:**
+```
+products/             Ürün klasörleri (product.md — bir kez yaz, iki taraf da kullanır)
+tests/run.php         Kök src/ pipeline'ının testleri
 docs/                 Belirtim, mimari, yol haritası, kararlar
 ```
 
 **İki çıktı:**
 - OpenCart mağazasına içe aktar: `php import.php`
 - OpenCart'sız statik site üret: `php site/build.php` → `site/output/`
+
+> Not: Pipeline (Scanner/Parser/Renderer/ImageOptimizer) hem `src/` hem
+> `site/src/` içinde bulunur — kasıtlı tekrar. Bu ortak mantıkta bir değişiklik
+> yaparsan **iki kopyaya da** uygula.
 
 ## Testleri çalıştırma
 

@@ -40,43 +40,50 @@ hata raporlanır ve sıradaki ürüne geçilir.
 
 ## Dosya düzeni
 
-Aynı içerikten **iki bağımsız çıktı (backend)** üretilir; ikisi de ortak
-`src/` çekirdeğini paylaşır ama birbirine karışmaz:
+Aynı içerikten **iki tamamen bağımsız backend** üretilir. İkisi de yalnızca
+**içeriği** (`products/`) paylaşır; kodları ayrıdır. Pipeline kodu iki yerde
+tekrar eder — bilinçli bir izolasyon tercihi; her tarafın neye ihtiyacı olduğu
+net görünür.
 
 ```
-src/                  Ortak çekirdek (her iki backend de kullanır)
-    Scanner.php           Ürün klasörlerini bulur
-    ProductParser.php     product.md okur, doğrular, uyarı toplar
-    Product.php           Basit veri taşıyıcı
-    MarkdownRenderer.php  Markdown -> HTML (sekmeler, galeriler, img-fluid)
-    ImageOptimizer.php    Büyük görselleri küçültür
-    ImportException.php   İnsan tarafından okunabilir hata
-    Publisher.php         (OpenCart) akışı yürütür, rapor verir
-    OpenCartApi.php       (OpenCart) veritabanına dokunan tek yer
-
+# OpenCart tarafı (kök)
 import.php            OpenCart backend'inin komut satırı girişi
 config.example.php    config.php olarak kopyalanır ve doldurulur
 config.php            Yerel OpenCart ayarları (git'e girmez, şifre içerir)
+src/
+    Scanner, ProductParser, Product, MarkdownRenderer,
+    ImageOptimizer, ImportException    (pipeline)
+    Publisher                          (akışı yürütür, rapor verir)
+    OpenCartApi                        (veritabanına dokunan tek yer)
+lib/Parsedown.php     Markdown kütüphanesi (MIT)
 
-site/                 Statik site backend'i (OpenCart'tan bağımsız)
+# Statik site tarafı (OpenCart'a hiç uzanmaz)
+site/
     build.php             Statik siteyi üretir (giriş noktası)
-    SiteBuilder.php       HTML dosyaları yazar (Publisher'ın statik karşılığı)
+    src/
+        Scanner, ProductParser, Product, MarkdownRenderer,
+        ImageOptimizer, ImportException   (pipeline kopyası)
+        SiteBuilder                       (HTML dosyaları yazar)
+    lib/Parsedown.php     Kendi Markdown kütüphanesi kopyası
     assets/               style.css + tabs.js (çerçevesiz)
     output/              Üretilen site (git'e girmez)
 
-lib/Parsedown.php     Markdown kütüphanesi (tek dosya, MIT)
-products/             Ürün klasörleri (ortak içerik)
-tests/run.php         Veritabanı gerektirmeyen kısımların testleri
+# Ortak
+products/             Ürün klasörleri (bir kez yazılır)
+tests/run.php         Kök src/ pipeline testleri
 docs/                 Bu belgeler
 ```
 
-İki backend, aynı `Scanner → ProductParser → MarkdownRenderer → ImageOptimizer`
-hattını kullanır; yalnızca son adım farklıdır:
-- **OpenCart:** `Publisher → OpenCartApi → veritabanı` (bkz. yukarıdaki akış).
+İki backend aynı `Scanner → ProductParser → MarkdownRenderer → ImageOptimizer`
+mantığını kullanır (her biri kendi kopyasıyla); yalnızca son adım farklıdır:
+- **OpenCart:** `Publisher → OpenCartApi → veritabanı`.
 - **Statik site:** `SiteBuilder → HTML dosyaları` (`site/output/`). Ne PHP
   sunucusu ne veritabanı gerekir; çıktı her statik barındırıcıya konabilir.
   İndirilebilir dosyalar bilerek yayınlanmaz (satış modelinde ödeme
   sağlayıcısı teslim eder).
+
+> Bakım notu: pipeline hem `src/` hem `site/src/` içinde bulunur. Ortak
+> mantıkta bir değişiklik yaparsan iki kopyaya da uygula.
 
 ---
 
